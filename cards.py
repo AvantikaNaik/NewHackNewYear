@@ -36,7 +36,7 @@ class Deck:
     #Shuffle card deck
     def shuffle(self):
         tempDeck = []
-        for i in range(len(self.cards) - 1, 0, -1):
+        for i in range(len(self.cards) - 1, -1, -1):
             r = random.randint(0, i)
             tempDeck.append(self.cards[r])
             self.cards.pop(r)
@@ -47,16 +47,19 @@ class Deck:
     def drawCard(self):
         return self.cards.pop()
 
+
     def deal(self, players):
-        for i in range(0, (52 % len(players))):
-            self.discardOne()
+        if (52 % len(players)) > 0:
+            for i in range(0, (52 % len(players))):
+                self.discardOne()
         counter = 1
         while len(self.cards) > 0:
             players[(counter % len(players))].drawFromDeck(self)
             counter += 1
     
+
     def discardOne(self):
-        self.pop()
+        self.cards.pop()
 
 
 #Player object
