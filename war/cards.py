@@ -47,6 +47,10 @@ class Deck:
     def drawCard(self):
         return self.cards.pop()
 
+    def deal(self, players):
+        while len(self.cards) > 0:
+            
+
 
 #Player object
 class Player:
