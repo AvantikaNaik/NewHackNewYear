@@ -48,10 +48,15 @@ class Deck:
         return self.cards.pop()
 
     def deal(self, players):
+        for i in range(0, (52 % len(players))):
+            self.discardOne()
         counter = 1
         while len(self.cards) > 0:
             players[(counter % len(players))].drawFromDeck(self)
             counter += 1
+    
+    def discardOne(self):
+        self.pop()
 
 
 #Player object
