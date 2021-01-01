@@ -9,3 +9,6 @@ for i in range(1, len(sys.argv)):
 
 deck = Deck()
 deck.shuffle()
+deck.deal(players)
+
+
