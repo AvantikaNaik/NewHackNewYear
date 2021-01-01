@@ -4,13 +4,13 @@ import random
 class Card:
 
     #Initialize value and suit
-    def __init__(self, value, suit):
+    def __init__(self, value, suite):
         self.value = value
-        self.suit = suit
+        self.suite = suite
     
     #Display a card
     def displayCard(self):
-        print(str(self.value) + " of " + str(self.suit))
+        print(str(self.value) + " of " + str(self.suite))
 
 
 #Deck object
@@ -26,7 +26,7 @@ class Deck:
         suites = ["Spades", "Clubs", "Diamonds", "Hearts"]
         for suite in suites:
             for value in range(1, 14):
-                self.cards.append(Card(suite, value))
+                self.cards.append(Card(value, suite))
 
     #Display all cards in deck
     def displayCards(self):
