@@ -1,28 +1,39 @@
 import random
 
+#Card object
 class Card:
+
+    #Initialize value and suit
     def __init__(self, value, suit):
         self.value = value
         self.suit = suit
     
+    #Display a card
     def displayCard(self):
         print(str(self.value) + " of " + str(self.suit))
 
+
+#Deck object
 class Deck:
+
+    #Initalize with array of cards in deck
     def __init__(self):
         self.cards = []
         self.create()
 
+    #Create a new deck of cards
     def create(self):
         suites = ["Spades", "Clubs", "Diamonds", "Hearts"]
         for suite in suites:
             for value in range(1, 14):
                 self.cards.append(Card(suite, value))
 
+    #Display all cards in deck
     def displayCards(self):
         for card in self.cards:
             card.displayCard()
 
+    #Shuffle card deck
     def shuffle(self):
         tempDeck = []
         for i in range(len(self.cards) - 1, 0, -1):
@@ -32,45 +43,41 @@ class Deck:
 
         self.cards = tempDeck
     
+    #Draw a card from the deck
     def drawCard(self):
         return self.cards.pop()
 
+
+#Player object
 class Player:
+
+    #Initialize with name, hand, and pile
     def __init__(self, name):
         self.name = name
         self.hand = []
         self.pile = []
     
+    #Draw from deck and add to hand of player
     def drawFromDeck(self, deck):
         self.hand.append(deck.drawCard())
         return self
     
+    #Display hand of player
     def displayHand(self):
         for card in self.hand:
             card.displayCard()
     
+    #Draw from player's hand
     def drawFromHand(self):
         return self.hand.pop()
 
+    #Add to player's discard pile
     def addToPile(self, card):
         self.pile.append(card)
     
+    #Display player's discard pile
     def displayPile(self):
         for card in self.pile:
             card.displayCard()
     
     
-
-
-deck = Deck()
-deck.shuffle()
-
-marty = Player("Marty McFly")
-marty.drawFromDeck(deck)
-marty.drawFromDeck(deck)
-marty.drawFromDeck(deck)
-
-marty.addToPile(marty.drawFromHand())
-marty.addToPile(marty.drawFromHand())
-
-marty.displayPile()
