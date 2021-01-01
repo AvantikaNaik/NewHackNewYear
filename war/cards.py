@@ -41,22 +41,36 @@ class Player:
         self.hand = []
         self.pile = []
     
-    def draw(self, deck):
+    def drawFromDeck(self, deck):
         self.hand.append(deck.drawCard())
         return self
     
     def displayHand(self):
         for card in self.hand:
             card.displayCard()
+    
+    def drawFromHand(self):
+        return self.hand.pop()
 
     def addToPile(self, card):
         self.pile.append(card)
     
-
-
+    def displayPile(self):
+        for card in self.pile:
+            card.displayCard()
+    
+    
 
 
 deck = Deck()
 deck.shuffle()
 
-nithya = Player("Nithya")
+marty = Player("Marty McFly")
+marty.drawFromDeck(deck)
+marty.drawFromDeck(deck)
+marty.drawFromDeck(deck)
+
+marty.addToPile(marty.drawFromHand())
+marty.addToPile(marty.drawFromHand())
+
+marty.displayPile()
