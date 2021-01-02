@@ -71,6 +71,9 @@ class Player:
         self.hand = []
         self.pile = []
     
+    def __repr__(self):
+        return self.name
+        
     #Draw from deck and add to hand of player
     def drawFromDeck(self, deck):
         self.hand.append(deck.drawCard())
