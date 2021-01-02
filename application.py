@@ -8,6 +8,7 @@ import random
 import time
 
 # War Stuff
+
 import sys
 from cards import Player
 from cards import Deck
@@ -134,6 +135,7 @@ def appStarted(app):
     app.showSnakeModeOptions = False
     app.aiSnakeMode = False
     app.multiplayerSnakeMode = False
+    app.gameOverCounter = 0 
 
 def initSnakeAndWormAndFood(app):
     app.snake = [(0,0)]
@@ -227,12 +229,12 @@ def moveWorm(app):
 def timerFired(app):
     app.titleScreenCounter += 1
     app.gameMenuAnimationCounter += 1
-    if app.titleScreenCounter > 30:
+    if app.titleScreenCounter > 20:
         app.titleScreenShowing = False
     if not app.titleScreenShowing:
         app.gameMenuAnimation = True
         app.gamesShowing = True
-    if app.gameMenuAnimationCounter > 50:
+    if app.gameMenuAnimationCounter > 27:
         app.gameMenuAnimation = False
     if app.warMode:
         playWar(app)
@@ -242,8 +244,15 @@ def timerFired(app):
         app.showingWarWinner = False
     if app.snakeMode and not (app.aiSnakeMode or app.multiplayerSnakeMode):
         app.showSnakeModeOptions = True
-    if app.aiSnakeMode:
+    if app.snakeMode and app.aiSnakeMode:
         playSnake(app)
+    if app.snakeMode and app.gameOver:
+        app.gameOverCounter += 1
+    if app.gameOverCounter > 10:
+        initSnakeAndWormAndFood(app)
+        app.aiSnakeMode = False
+        app.snakeMode = False
+        app.gameOverCounter = 0
 
 def mousePressed(app, event):
     xMargin = app.width//25
@@ -255,17 +264,18 @@ def mousePressed(app, event):
             print("hangman")
         elif (xMargin < event.x < app.width//2-xMargin) and (app.height//2 + yMargin < event.y < app.height - yMargin):
             app.warMode = True
-            print("war")
         elif (app.width//2 + xMargin < event.x < app.width-xMargin) and (yMargin < event.y < app.height//2 - yMargin):
             app.skribbleMode = True
             print("skribble")
         elif (app.width//2 + xMargin < event.x < app.width-xMargin) and (app.height//2 + yMargin < event.y < app.height - yMargin): 
             app.snakeMode = True
-            print("snake")
     if app.showSnakeModeOptions:
         if 0 < event.x < app.width//2:
-            app.aiSnakeMode = True
+            initSnakeAndWormAndFood(app)
+            app.waitingForFirstKeyPress = True
             app.showSnakeModeOptions = False
+            app.gameOverCounter = 0
+            app.aiSnakeMode = True
         else: 
             app.multiplayerSnakeMode = True
             app.showSnakeModeOptions = False
@@ -429,10 +439,8 @@ def drawFood(app, canvas):
 
 def drawGameOver(app, canvas):
     if (app.gameOver):
+        canvas.create_rectangle(0, 0, app.width, app.height, fill="pink")
         canvas.create_text(app.width/2, app.height/2, text='Game over!',
-                           font='Arial 26 bold')
-        canvas.create_text(app.width/2, app.height/2+40,
-                           text='Press r to restart!',
                            font='Arial 26 bold')
 
 def redrawAll(app, canvas):
@@ -453,7 +461,9 @@ def redrawAll(app, canvas):
         canvas.create_rectangle(0, 0, app.width, app.height, fill="pink")
         canvas.create_text(app.width//2, app.height//4, text="Congrats! The winner is", font="Arial 30 bold")
         canvas.create_text(app.width//2, 2 * app.height//4, text=f"{str(app.playerName)} with {str(len(app.playerPile))} cards!", font="Arial 30 bold")
-    if app.snakeMode:
+    if app.gameOver:
+        drawGameOver(app, canvas)
+    if app.snakeMode and not app.gameOver:
         if (app.waitingForFirstKeyPress):
             canvas.create_rectangle(0, 0, app.width, app.height, fill="pink")
             canvas.create_text(app.width/2, app.height/2,
@@ -465,7 +475,7 @@ def redrawAll(app, canvas):
             drawFood(app, canvas)
             drawWorm(app, canvas)
             drawGameOver(app, canvas)
-    if app.showSnakeModeOptions:
+    if app.showSnakeModeOptions and not app.gameOver:
         canvas.create_rectangle(0, 0, app.width//2, app.height, fill="pink")
         canvas.create_text(app.width/4, app.height//2,
                             text='AI snake!',
@@ -474,7 +484,6 @@ def redrawAll(app, canvas):
         canvas.create_text(3 * app.width//4, app.height//2,
                             text='Multiplayer Snake!',
                             font='Arial 26 bold')
-
 ##############################################
 # Run App
 ##############################################
