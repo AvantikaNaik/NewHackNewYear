@@ -10,12 +10,10 @@ game = input("What game do you want to play?\n")
 if game == "War":
     players = []
 
-    print("LET'S PLAY WAR! \n ENTER PLAYERS: (Press 1 to continue)")
-    name = ""
-    while not name == "1":
-        name = input()
-        if not name == "1":
-            players.append(Player(name))
+    print("LET'S PLAY WAR! \nENTER PLAYERS SEPERATED WITH COMMAS:")
+    namestr = input()
+    for name in namestr.split(", "):
+        players.append(Player(name))
     print("HERE ARE YOUR PLAYERS:")
     for player in players:
         print(player.name)

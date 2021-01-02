@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from cmu_112_graphics import *
 import random
 
@@ -236,7 +235,6 @@ def redrawAll(app, canvas):
 
 
 runApp(width=800, height=800)
-=======
 from cmu_112_graphics import *
 import random
 
@@ -348,4 +346,3 @@ def redrawAll(app, canvas):
         drawGameOver(app, canvas)
 
 runApp(width=400, height=400)
->>>>>>> 8cb7b5fcd29f5afeea2b510f57ea58570a071cb3

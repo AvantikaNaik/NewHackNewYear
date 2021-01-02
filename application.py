@@ -64,12 +64,10 @@ def getCellBounds(app, row, col):
 def playWar(app):
     players = []
 
-    print("LET'S PLAY WAR! ENTER 1 TO EXIT! ENTER PLAYERS:")
-    name = ""
-    while not name == "1":
-        name = input()
-        if not name == "1":
-            players.append(Player(name))
+    print("LET'S PLAY WAR! \nENTER PLAYERS SEPERATED WITH COMMAS:")
+    namestr = input()
+    for name in namestr.split(", "):
+        players.append(Player(name))
     print("HERE ARE YOUR PLAYERS:")
     for player in players:
         print(player.name)
