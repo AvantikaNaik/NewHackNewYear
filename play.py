@@ -10,7 +10,7 @@ game = input("What game do you want to play?\n")
 if game == "War":
     players = []
 
-    print("LET'S PLAY WAR! ENTER 1 TO EXIT! ENTER PLAYERS:")
+    print("LET'S PLAY WAR! \n ENTER PLAYERS: (Press 1 to continue)")
     name = ""
     while not name == "1":
         name = input()
