@@ -23,6 +23,17 @@ from random_words import RandomWords
 rw = RandomWords()
 
 
+
+#import game
+import contextlib
+with contextlib.redirect_stdout(None):
+    import pygame
+from client import Network
+import random
+import os
+
+from game import agario
+
 ######################
 # Snake Stuff
 #####################
@@ -165,6 +176,10 @@ def appStarted(app):
     app.pongCounter = 0
     resetApp(app)
 
+    # Agar.io Stuff
+    app.agarioMode = False
+    app.agarioGameOver = False
+    app.runningAgario = False
 
 def resetApp(app):
     app.timerDelay = 50
@@ -441,11 +456,18 @@ def timerFired(app):
         app.pongMode = False
         resetApp(app)
         app.pongCounter = 0
+    if app.agarioMode and app.runningAgario == False:
+        print("entered")
+        app.runningAgario = True
+        agario(app)
+        app.agarioMode = False
+        app.runningAgario = False
+
 
 def mousePressed(app, event):
     xMargin = app.width // 25
     yMargin = app.height // 25
-    if app.gamesShowing and not app.gameMenuAnimation and not app.showSnakeModeOptions and not app.snakeMode and not app.hangmanMode and not app.pongMode:
+    if app.gamesShowing and not app.gameMenuAnimation and not app.showSnakeModeOptions and not app.snakeMode and not app.hangmanMode and not app.pongMode and not app.agarioMode:
         if (xMargin < event.x < app.width // 2 - xMargin) and (yMargin < event.y < app.height // 2 - yMargin):
             app.hangmanMode = True
         elif (xMargin < event.x < app.width // 2 - xMargin) and (
@@ -459,6 +481,9 @@ def mousePressed(app, event):
                 app.height // 2 + yMargin < event.y < app.height - yMargin):
             app.snakeMode = True
             app.timerDelay = 250
+        elif (app.width//2 - xMargin < event.x < app.width//2+xMargin) and (app.height // 2 - yMargin < event.y < app.height // 2 + yMargin):
+            app.agarioMode = True
+            print("agario")
     if app.showSnakeModeOptions:
         if 0 < event.x < app.width // 2:
             initSnakeAndWormAndFood(app)
