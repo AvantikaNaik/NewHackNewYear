@@ -13,6 +13,12 @@ def resetApp(app):
     app.paddleX1 = 40
     app.paddleY0 = 20
     app.paddleY1 = 100
+
+    app.paddle2X0 = app.width - 20
+    app.paddle2X1 = app.width - 40
+    app.paddle2Y0 = 20
+    app.paddle2Y1 = 100
+
     app.margin = 5
     app.paddleSpeed = 10
     app.dotR = 15
@@ -30,10 +36,20 @@ def movePaddleDown(app):
     app.paddleY0 += dy
     app.paddleY1 += dy
 
+def movePaddle2Down(app):
+    dy = min(app.paddleSpeed, app.height - app.margin - app.paddle2Y1)
+    app.paddle2Y0 += dy
+    app.paddle2Y1 += dy
+
 def movePaddleUp(app):
     dy = min(app.paddleSpeed, app.paddleY0 - app.margin)
     app.paddleY0 -= dy
     app.paddleY1 -= dy
+
+def movePaddle2Up(app):
+    dy = min(app.paddleSpeed, app.paddle2Y0 - app.margin)
+    app.paddle2Y0 -= dy
+    app.paddle2Y1 -= dy
 
 def keyPressed(app, event):
     if app.gameOver:
@@ -43,8 +59,10 @@ def keyPressed(app, event):
         app.dotsLeft -= 1
     elif (event.key == 'Down'):
         movePaddleDown(app)
+        movePaddle2Down(app)
     elif (event.key == 'Up'):
         movePaddleUp(app)
+        movePaddle2Up(app)
 
 def timerFired(app):
     doStep(app)
@@ -53,7 +71,7 @@ def doStep(app):
     if not app.waitingForKeyPress and not app.gameOver:
         moveDot(app)
 
-def dotWentOffLeftSide(app):
+def dotWentOffEdge(app):
     if app.dotsLeft == 0:
         app.gameOver = True
     else:
@@ -63,6 +81,10 @@ def dotWentOffLeftSide(app):
 def dotIntersectsPaddle(app):
     return ((app.paddleX0 <= app.dotCx <= app.paddleX1) and
             (app.paddleY0 <= app.dotCy <= app.paddleY1))
+
+def dotIntersectPaddle2(app):
+    return ((app.paddle2X1 <= app.dotCx <= app.paddle2X0) and
+            (app.paddle2Y0 <= app.dotCy <= app.paddle2Y1))
 
 def moveDot(app):
     app.dotCx += app.dotDx
@@ -75,10 +97,6 @@ def moveDot(app):
         # The dot went off the top!
         app.dotCy = app.dotR
         app.dotDy = -app.dotDy
-    if (app.dotCx + app.dotR >= app.width):
-        # The dot went off the right!
-        app.dotCx = app.width - app.dotR
-        app.dotDx = -app.dotDx
     elif dotIntersectsPaddle(app):
         # The dot hit the paddle!
         app.score += 1 # hurray!
@@ -87,9 +105,16 @@ def moveDot(app):
         dToMiddleY = app.dotCy - (app.paddleY0 + app.paddleY1)/2
         dampeningFactor = 3 # smaller = more extreme bounces
         app.dotDy = dToMiddleY / dampeningFactor
-    elif (app.dotCx - app.dotR <= 0):
+    elif dotIntersectPaddle2(app):
+        app.score += 1 # hurray
+        app.dotDx = -app.dotDx
+        app.dotCx = app.paddle2X1
+        dToMiddleY = app.dotCy - (app.paddle2Y0 + app.paddle2Y1)/2
+        dampeningFactor = 3 # smaller = more extreme bounces
+        app.dotDy = dToMiddleY / dampeningFactor
+    elif (app.dotCx - app.dotR <= 0) or (app.dotCx + app.dotR >= app.width):
         # The dot went off the left side
-        dotWentOffLeftSide(app)
+        dotWentOffEdge(app)
 
 def drawAppInfo(app, canvas):
     font = 'Arial 18 bold'
@@ -105,6 +130,11 @@ def drawPaddle(app, canvas):
     canvas.create_rectangle(app.paddleX0, app.paddleY0,
                             app.paddleX1, app.paddleY1,
                             fill='black')
+
+def drawPaddle2(app, canvas):
+    canvas.create_rectangle(app.paddle2X0, app.paddle2Y0,
+                                app.paddle2X1, app.paddle2Y1,
+                                fill='black')
 
 def drawDot(app, canvas):
     # This is a helper function for the View
@@ -130,6 +160,7 @@ def redrawAll(app, canvas):
     # This is the View
     drawAppInfo(app, canvas)
     drawPaddle(app, canvas)
+    drawPaddle2(app, canvas)
     if app.gameOver:
         drawGameOver(app, canvas)
     elif app.waitingForKeyPress:
