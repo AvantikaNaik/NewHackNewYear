@@ -1,5 +1,6 @@
 # small network game that has differnt blobs
 # moving around the screen
+#CODE SOURCED FROM Tech with Tim, with alterations
 
 import contextlib
 with contextlib.redirect_stdout(None):
@@ -13,6 +14,7 @@ pygame.font.init()
 PLAYER_RADIUS = 10
 START_VEL = 9
 BALL_RADIUS = 5
+dark_radius_add = 10
 
 W, H = 1600, 830
 
@@ -20,11 +22,12 @@ NAME_FONT = pygame.font.SysFont("comicsans", 20)
 TIME_FONT = pygame.font.SysFont("comicsans", 30)
 SCORE_FONT = pygame.font.SysFont("comicsans", 26)
 
-COLORS = [(255,0,0), (255, 128, 0), (255,255,0), (128,255,0),(0,255,0),(0,255,128),(0,255,255),(0, 128, 255), (0,0,255), (0,0,255), (128,0,255),(255,0,255), (255,0,128),(128,128,128), (0,0,0)]
+COLORS = [(255,0,0),(50, 1, 0), (255, 128, 0), (255,255,0), (128,255,0),(0,255,0),(0,255,128),(0,255,255),(0, 128, 255), (0,0,255), (0,0,255), (128,0,255),(255,0,255), (255,0,128),(128,128,128), (0,0,0)]
 
 # Dynamic Variables
 players = {}
 balls = []
+dark = []
 
 # FUNCTIONS
 def convert_time(t):
@@ -50,13 +53,14 @@ def convert_time(t):
 		return minutes + ":" + seconds
 
 
-def redraw_window(players, balls, game_time, score):
+def redraw_window(dark, players, balls, game_time, score):
 	"""
 	draws each frame
 	:return: None
 	"""
 	WIN.fill((255,255,255)) # fill screen white, to clear old frames
-	
+	for bomb in dark:
+		pygame.draw.circle(WIN, bomb[2], (bomb[0], bomb[1]), bomb[3])
 		# draw all the orbs/balls
 	for ball in balls:
 		pygame.draw.circle(WIN, ball[2], (ball[0], ball[1]), BALL_RADIUS)
@@ -102,7 +106,7 @@ def main(name):
 	# start by connecting to the network
 	server = Network()
 	current_id = server.connect(name)
-	balls, players, game_time = server.send("get")
+	dark, balls, players, game_time = server.send("get") ################
 
 	# setup the clock, limit to 30fps
 	clock = pygame.time.Clock()
@@ -139,7 +143,7 @@ def main(name):
 		data = "move " + str(player["x"]) + " " + str(player["y"])
 
 		# send data to server and recieve back all players information
-		balls, players, game_time = server.send(data)
+		dark, balls, players, game_time = server.send(data) ########################
 
 		for event in pygame.event.get():
 			# if user hits red x button close window
@@ -153,7 +157,7 @@ def main(name):
 
 
 		# redraw window then update the frame
-		redraw_window(players, balls, game_time, player["score"])
+		redraw_window(dark, players, balls, game_time, player["score"])
 		pygame.display.update()
 
 
@@ -179,3 +183,4 @@ pygame.display.set_caption("Blobs")
 
 # start game
 main(name)
+

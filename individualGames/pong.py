@@ -177,8 +177,8 @@ def redrawAll(app, canvas):
     drawAppInfo(app, canvas)
     drawPaddle(app, canvas)
     drawPaddle2(app, canvas)
-    if app.gameOver:
-        drawGameOver(app, canvas)
+    if app.gameOverPong:
+        drawGameOverPong(app, canvas)
     elif app.waitingForKeyPressPong:
         drawPressAnyKey(app, canvas)
     else:
