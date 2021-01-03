@@ -15,17 +15,23 @@ TO RUN THIS PROJECT: application.py is the main file that you will run to access
 the games as a whole package/project! You do need to have cmu-112-graphics.py in 
 the same folder level though. 
 Included in this application are 5 games:
-1. Snake
+1. Snake, charged.
     - AI mode (singleplayer)
-    - Multiplayer Mode
-2. War
+2. War, declared.
     - A singleplayer terminal game for those who laptops and computers can't
     handle running intense graphics
-3. Pong
-    - Multiplayer (play with 1 friend)
-4. Hangman
+3. Pong, deflected.
+    - AI mode (singleplayer)
+4. Hangman, escaped.
     - A single player graphics game where the computer comes up with a word and 
     you have to try to guess it! 
+5. Agario, networked.
+    - multiplayer (on same local network)
+    The classoc Agario game, revisited. We all hate how crowded public servers are. 
+    There always seems to be a monopoly among the top 3 players and there is no point to the game. 
+    Play our Agario game where you can connect with those on your local network (you can get a "small-server" experience) and also get put on a 5-minute timer to exercise your mind.
+    Can you strategize growth? Note: Do not hit the giant black blobs! If you get too close, it will freeze the game and embarrass you in front of all your friends.  
+    
 Connection to New Year Theme: 
     It's finally 2021!!!! After the brutal year that was 2020, we are all 
     excited to turn over a new leaf and go back to normal. But... even if we
