@@ -1,9 +1,9 @@
 # NewHackNewYear
 MLH New Hack New Year Hackathon Repo
 
-Hi and welcome to ********! 
+Hi and welcome to the HackerGames 
 
-******* is a minipack of games similar to Jackbox. From 1 friend to 100, you 
+HackerGames is a minipack of games similar to Jackbox. From 1 friend to 100, you 
 can bond with folks over this game. 
 
 # Installing and Running the App Info!
