@@ -3,12 +3,12 @@ from cmu_112_graphics import *
 import random
 #singleplayer pong
 def appStarted(app):
-    app.waitingForKeyPress = True
+    app.waitingForKeyPressPong = True
     resetApp(app)
 
 def resetApp(app):
     app.timerDelay = 50
-    app.dotsLeft = 2
+    app.dotsLeft = 5
     app.leftScore = 0
     app.rightScore = 0
     app.paddleX0 = 20
@@ -24,7 +24,7 @@ def resetApp(app):
     app.margin = 5
     app.paddleSpeed = 10
     app.dotR = 15
-    app.gameOver = False
+    app.gameOverPong = False
     resetDot(app)
 
 def resetDot(app):
@@ -65,20 +65,18 @@ def moveAIPaddle(app):
         movePaddle2Down(app)
 
 def keyPressed(app, event):
-    if app.gameOver:
+    if app.gameOverPong:
         resetApp(app)
-    elif app.waitingForKeyPress:
-        app.waitingForKeyPress = False
+    elif app.waitingForKeyPressPong:
+        app.waitingForKeyPressPong = False
         app.dotsLeft -= 1
     elif (event.key == 'Down'):
         movePaddleDown(app)
-        #movePaddle2Down(app)
     elif (event.key == 'Up'):
         movePaddleUp(app)
-        #movePaddle2Up(app)
 
 def timerFired(app):
-    if not app.waitingForKeyPress and not app.gameOver:
+    if not app.waitingForKeyPressPong and not app.gameOverPong:
         moveDot(app)
         moveAIPaddle(app)
         app.timer += 1
@@ -88,9 +86,9 @@ def timerFired(app):
 
 def dotWentOffEdge(app):
     if app.dotsLeft == 0:
-        app.gameOver = True
+        app.gameOverPong = True
     else:
-        app.waitingForKeyPress = True
+        app.waitingForKeyPressPong = True
         resetDot(app)
 
 def dotIntersectsPaddle(app):
@@ -159,7 +157,7 @@ def drawDot(app, canvas):
     cx, cy, r = app.dotCx, app.dotCy, app.dotR
     canvas.create_oval(cx-r, cy-r, cx+r, cy+r, fill='black')
 
-def drawGameOver(app, canvas):
+def drawGameOverPong(app, canvas):
     # This is a helper function for the View
     canvas.create_text(app.width/2, app.height/2,
                        text='Game Over!',
@@ -181,7 +179,7 @@ def redrawAll(app, canvas):
     drawPaddle2(app, canvas)
     if app.gameOver:
         drawGameOver(app, canvas)
-    elif app.waitingForKeyPress:
+    elif app.waitingForKeyPressPong:
         drawPressAnyKey(app, canvas)
     else:
         drawDot(app, canvas)

@@ -111,7 +111,6 @@ def playSnake(app):
     moveWorm(app)
     takeStep(app)
 
-
 ##############################################
 # App Stuff
 ##############################################
@@ -126,7 +125,7 @@ def appStarted(app):
 
     app.hangmanMode = False
     app.snakeMode = False
-    app.skribbleMode = False
+    app.pongMode = False
     app.warMode = False
 
     # War Varaibles
@@ -159,6 +158,116 @@ def appStarted(app):
     app.lose = False
     app.hangmanCounter = 0
     app.bodyParts = 0
+
+    #Pong Stuff
+    app.waitingForKeyPressPong = True
+    app.gameOverPong = False
+    app.pongCounter = 0
+    resetApp(app)
+
+
+def resetApp(app):
+    app.timerDelay = 50
+    app.dotsLeft = 2
+    app.leftScore = 0
+    app.rightScore = 0
+    app.paddleX0 = 20
+    app.paddleX1 = 40
+    app.paddleY0 = app.height//2 - 40
+    app.paddleY1 = app.height//2 + 40
+
+    app.paddle2X0 = app.width - 20
+    app.paddle2X1 = app.width - 40
+    app.paddle2Y0 = app.height//2 - 40
+    app.paddle2Y1 = app.height//2 + 40
+
+    app.margin = 5
+    app.paddleSpeed = 10
+    app.dotR = 15
+    app.gameOver = False
+    resetDot(app)
+
+def resetDot(app):
+    app.dotCx = app.width//2
+    app.dotCy = app.height//2
+    i = random.randint(1, 4)
+    app.dotDx = -10 * ((-1)**i)
+    app.dotDy = -3 * ((-1)**i)
+    app.timer = 0
+
+def movePaddleDown(app):
+    dy = min(app.paddleSpeed, app.height - app.margin - app.paddleY1)
+    app.paddleY0 += dy
+    app.paddleY1 += dy
+
+def movePaddle2Down(app):
+    dy = min(app.paddleSpeed, app.height - app.margin - app.paddle2Y1)
+    app.paddle2Y0 += dy
+    app.paddle2Y1 += dy
+
+def movePaddleUp(app):
+    dy = min(app.paddleSpeed, app.paddleY0 - app.margin)
+    app.paddleY0 -= dy
+    app.paddleY1 -= dy
+
+def movePaddle2Up(app):
+    dy = min(app.paddleSpeed, app.paddle2Y0 - app.margin)
+    app.paddle2Y0 -= dy
+    app.paddle2Y1 -= dy
+
+def moveAIPaddle(app):
+    paddleMid = (app.paddle2Y0 + app.paddle2Y1)//2
+    offset = random.randint(1, 28)
+    offset2 = random.randint(1, 28)
+    if app.dotCy <= paddleMid - offset:
+        movePaddle2Up(app)
+    if app.dotCy > paddleMid + offset2:
+        movePaddle2Down(app)
+
+def dotWentOffEdge(app):
+    if app.dotsLeft == 0:
+        app.gameOverPong = True
+    else:
+        app.waitingForKeyPressPong = True
+        resetDot(app)
+
+def dotIntersectsPaddle(app):
+    return ((app.paddleX0 <= app.dotCx <= app.paddleX1) and
+            (app.paddleY0 <= app.dotCy <= app.paddleY1))
+
+def dotIntersectPaddle2(app):
+    return ((app.paddle2X1 <= app.dotCx <= app.paddle2X0) and
+            (app.paddle2Y0 <= app.dotCy <= app.paddle2Y1))
+
+def moveDot(app):
+    app.dotCx += app.dotDx
+    app.dotCy += app.dotDy
+    if (app.dotCy + app.dotR >= app.height):
+        # The dot went off the bottom!
+        app.dotCy = app.height - app.dotR
+        app.dotDy = -app.dotDy
+    elif (app.dotCy - app.dotR <= 0):
+        # The dot went off the top!
+        app.dotCy = app.dotR
+        app.dotDy = -app.dotDy
+    elif dotIntersectsPaddle(app):
+        # The dot hit the paddle!
+        app.leftScore += 1 # hurray!
+        app.dotDx = -app.dotDx
+        app.dotCx = app.paddleX1
+        dToMiddleY = app.dotCy - (app.paddleY0 + app.paddleY1)/2
+        dampeningFactor = 3 # smaller = more extreme bounces
+        app.dotDy = dToMiddleY / dampeningFactor
+    elif dotIntersectPaddle2(app):
+        app.rightScore += 1 
+        app.dotDx = -app.dotDx
+        app.dotCx = app.paddle2X1
+        dToMiddleY = app.dotCy - (app.paddle2Y0 + app.paddle2Y1)/2
+        dampeningFactor = 3 # smaller = more extreme bounces
+        app.dotDy = dToMiddleY / dampeningFactor
+    elif (app.dotCx - app.dotR <= 0) or (app.dotCx + app.dotR >= app.width):
+        # The dot went off the left side
+        dotWentOffEdge(app)
 
 
 def generateLists(app):
@@ -273,20 +382,23 @@ def moveWorm(app):
 
 
 def timerFired(app):
+    if app.timerDelay == 250:
+        pause = 20
+    else: pause = 100
     app.titleScreenCounter += 1
     app.gameMenuAnimationCounter += 1
-    if app.titleScreenCounter > 20:
+    if app.titleScreenCounter > pause:
         app.titleScreenShowing = False
     if not app.titleScreenShowing:
         app.gameMenuAnimation = True
         app.gamesShowing = True
-    if app.gameMenuAnimationCounter > 27:
+    if app.gameMenuAnimationCounter > 1.5 * pause:
         app.gameMenuAnimation = False
     if app.warMode:
         playWar(app)
     if app.showingWarWinner:
         app.warWinnerCounter += 1
-    if app.warWinnerCounter > 20:
+    if app.warWinnerCounter > pause:
         app.showingWarWinner = False
     if app.snakeMode and not (app.aiSnakeMode or app.multiplayerSnakeMode) and not app.hangmanMode:
         app.showSnakeModeOptions = True
@@ -294,7 +406,7 @@ def timerFired(app):
         playSnake(app)
     if app.snakeMode and app.gameOver:
         app.gameOverCounter += 1
-    if app.gameOverCounter > 10:
+    if app.gameOverCounter > pause:
         initSnakeAndWormAndFood(app)
         app.aiSnakeMode = False
         app.snakeMode = False
@@ -309,31 +421,45 @@ def timerFired(app):
             app.win == True
     if app.win or app.lose:
         app.hangmanCounter += 1
-    if app.hangmanCounter > 10:
+    if app.hangmanCounter > pause:
         app.win = False
         app.lose = False
         app.hangmanMode = False
         resetHangman(app)
         app.hangmanCounter = 0
-
+    if app.pongMode:
+        if not app.waitingForKeyPressPong and not app.gameOverPong:
+            moveDot(app)
+            moveAIPaddle(app)
+            app.timer += 1
+            if app.timer > 50:
+                app.timerDelay -= 1
+                app.timer = 0
+    if app.gameOverPong:
+        app.pongCounter += 1
+    if app.pongCounter > pause:
+        app.gameOverPong = False
+        app.pongMode = False
+        resetApp(app)
+        app.pongCounter = 0
 
 def mousePressed(app, event):
     xMargin = app.width // 25
     yMargin = app.height // 25
-    if app.gamesShowing and not app.gameMenuAnimation and not app.showSnakeModeOptions and not app.snakeMode and not app.hangmanMode:
+    if app.gamesShowing and not app.gameMenuAnimation and not app.showSnakeModeOptions and not app.snakeMode and not app.hangmanMode and not app.pongMode:
         if (xMargin < event.x < app.width // 2 - xMargin) and (yMargin < event.y < app.height // 2 - yMargin):
             app.hangmanMode = True
-            print("hangman")
         elif (xMargin < event.x < app.width // 2 - xMargin) and (
                 app.height // 2 + yMargin < event.y < app.height - yMargin):
             app.warMode = True
         elif (app.width // 2 + xMargin < event.x < app.width - xMargin) and (
                 yMargin < event.y < app.height // 2 - yMargin):
-            app.skribbleMode = True
-            print("skribble")
+            app.pongMode = True
+            app.timerDelay = 50
         elif (app.width // 2 + xMargin < event.x < app.width - xMargin) and (
                 app.height // 2 + yMargin < event.y < app.height - yMargin):
             app.snakeMode = True
+            app.timerDelay = 250
     if app.showSnakeModeOptions:
         if 0 < event.x < app.width // 2:
             initSnakeAndWormAndFood(app)
@@ -393,7 +519,14 @@ def keyPressed(app, event):
                     app.guessedLetters.add
                     checkGuess(app, app.textbox)
                     app.textbox = "..."
-
+    if app.pongMode:
+        if app.waitingForKeyPressPong:
+            app.waitingForKeyPressPong = False
+            app.dotsLeft -= 1
+        elif (event.key == 'Down'):
+            movePaddleDown(app)
+        elif (event.key == 'Up'):
+            movePaddleUp(app)
 
 def takeStep(app):
     (drow, dcol) = app.direction
@@ -669,6 +802,39 @@ def drawRightLeg(app, canvas):
     x = app.width // 20
     canvas.create_line(6 * x, 8 * x, 7 * x, 10 * x)
 
+def drawAppInfo(app, canvas):
+    font = 'Arial 18 bold'
+    canvas.create_text(app.width-70, 20,
+                       text=f'Score: {app.rightScore}',
+                       font=font)
+    canvas.create_text(70, 20,
+                        text=f'Score: {app.leftScore}',
+                        font=font)
+    canvas.create_text(app.width//2, app.height-20,
+                       text=f'Dots Left: {app.dotsLeft}',
+                       font=font)
+
+def drawPaddle(app, canvas):
+    # This is a helper function for the View
+    canvas.create_rectangle(app.paddleX0, app.paddleY0,
+                            app.paddleX1, app.paddleY1,
+                            fill='black')
+
+def drawPaddle2(app, canvas):
+    canvas.create_rectangle(app.paddle2X0, app.paddle2Y0,
+                                app.paddle2X1, app.paddle2Y1,
+                                fill='black')
+
+def drawDot(app, canvas):
+    # This is a helper function for the View
+    cx, cy, r = app.dotCx, app.dotCy, app.dotR
+    canvas.create_oval(cx-r, cy-r, cx+r, cy+r, fill='black')
+
+def drawPressAnyKey(app, canvas):
+    # This is a helper function for the View
+    canvas.create_text(app.width/2, app.height/2,
+                       text='Press any key to start!',
+                       font='Arial 18 bold')
 
 def redrawAll(app, canvas):
     canvas.create_rectangle(0, 0, app.width, app.height, fill="pink")
@@ -752,6 +918,17 @@ def redrawAll(app, canvas):
             drawRightArm(app, canvas)
             drawLeftLeft(app, canvas)
             drawRightLeg(app, canvas)
+    if app.pongMode:
+        canvas.create_rectangle(0,0,app.width, app.height, fill="pink")
+        drawAppInfo(app, canvas)
+        drawPaddle(app, canvas)
+        drawPaddle2(app, canvas)
+        if app.gameOverPong:
+            canvas.create_text(app.width//2, app.height//2, text="Game Over", font="Corbel 26 bold")
+        elif app.waitingForKeyPressPong:
+            drawPressAnyKey(app, canvas)
+        else:
+            drawDot(app, canvas)
 
 
 ##############################################
