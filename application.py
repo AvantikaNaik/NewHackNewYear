@@ -429,7 +429,7 @@ def drawTitleScreen(app, canvas):
     canvas.create_text(app.width//2, 3 * app.height//4, fill="white", text="May the best hacker win!", font="Arial 40 bold")
 
 def drawGameMenuAnimation(app, canvas):
-    canvas.create_text(app.width//2, app.height//2, fill="black", text="CHOOSE WISELY!", font="Arial 55 bold")
+    canvas.create_text(app.width//2, app.height//2, fill="black", text="Choose Wisely!", font="Arial 55 bold")
 
 def drawGames(app, canvas):
     xMargin = app.width//25
