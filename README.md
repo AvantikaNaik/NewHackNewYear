@@ -37,11 +37,16 @@ Included in this application are 5 games:
     Those living close to you are special, too! Here are the instructions to running Agario on your local network:
     1. One person needs to run server.py (I ran it using command prompt and I recommend it!). 
     They should see this show up:
+    
     [SERVER] Server Started with local ip "XXX.XXX.X.XXX" (your ip is different)
+    
     [GAME] Setting up level
+    
     [SERVER] Waiting for connections
-    2. Have all clients (those who want to play the game. the person running the server can play too) open client.py on Spyder or any IDE and change self.host = "192.168.0.133" to the IP address that showed up in step 1. Save your changes to the client.py file.
-    3. Run game.py. I ran it on Spyder. 
+    
+    2. Have all clients (those who want to play the game; the person running the server can play too) open client.py on Spyder or any IDE and change self.host = "XXX.XXX.X.XXX" to the IP address that showed up in step 1. For the people who are not running the server.py file, they can find their local ip address by opening command prompt and typing in "ipconfig" and looking at the IP4Address displayed there. Remember they should save the changes to their client.py files.
+    
+    3. Open our application.py file on python, make sure the server is running (someone should have run the server.py code), click on the Agario game box, type in your name in the terminal, hit enter, and viola Agario should pop up! If the timer isn't working correctly, try restarting the application and redoing the steps. It oftentimes takes a second initiation to get agario working. Press Esc or X to quit. When the 5 minute timer is up, the Agario game will prevent you from growing bigger.  
     
 Connection to New Year Theme: 
     It's finally 2021!!!! After the brutal year that was 2020, we are all 
