@@ -17,9 +17,10 @@ S.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
 # Set constants
 PORT = 5555
-
+PLAYER_RADIUS = 10
 BALL_RADIUS = 5
 START_RADIUS = 7
+dark_radius_add = 10
 
 ROUND_TIME = 60 * 5
 
@@ -45,6 +46,7 @@ print(f"[SERVER] Server Started with local ip {SERVER_IP}")
 # dynamic variables
 players = {}
 balls = []
+dark = []
 connections = 0
 _id = 0
 colors = [(255,0,0), (255, 128, 0), (255,255,0), (128,255,0),(0,255,0),(0,255,128),(0,255,255),(0, 128, 255), (0,0,255), (0,0,255), (128,0,255),(255,0,255), (255,0,128),(128,128,128), (0,0,0)]
@@ -69,7 +71,7 @@ def release_mass(players):
 			p["score"] = math.floor(p["score"]*0.95)
 
 
-def check_collision(players, balls):
+def check_collision(players, balls, dark):
 	"""
 	checks if any of the player have collided with any of the balls
 
@@ -90,6 +92,19 @@ def check_collision(players, balls):
 			if dis <= START_RADIUS + p["score"]:
 				p["score"] = p["score"] + 0.5
 				balls.remove(ball)
+
+		for bomb in dark:
+			dx = bomb[0]
+			dy = bomb[1]
+			dis = math.sqrt((x - dx)**2 + (y-dy)**2)
+			if dis <= START_RADIUS + p["score"]:
+				p["score"] = p["score"] + 0.5
+				bomb[3] = math.sqrt(p["score"]**2 + bomb[3]**2) # adding areas instead of radii
+				p["score"] = 0
+				p["x"], p["y"] = get_start_location(players)
+				print(f"[GAME] " + "BOMB ATE " + p["name"])
+
+
 
 
 def player_collision(players):
@@ -139,6 +154,28 @@ def create_balls(balls, n):
 
 		balls.append((x,y, random.choice(colors)))
 
+def create_bombs(dark, n):
+	"""
+	creates bombs on the screen
+
+	:param balls: a list to add bombs to
+	:param n: the amount of bombs to make
+	:return: None
+	"""
+	for i in range(n):
+		while True:
+			stop = True
+			x = random.randrange(0,W)
+			y = random.randrange(0,H)
+			for player in players:
+				p = players[player]
+				dis = math.sqrt((x - p["x"])**2 + (y-p["y"])**2)
+				if dis <= START_RADIUS + p["score"]:
+					stop = False
+			if stop:
+				break
+
+		dark.append((x,y, (0, 0, 0),(PLAYER_RADIUS+ dark_radius_add)))
 
 def get_start_location(players):
 	"""
@@ -171,7 +208,7 @@ def threaded_client(conn, _id):
 	:param _id: int
 	:return: None
 	"""
-	global connections, players, balls, game_time, nxt, start
+	global connections, dark, players, balls, game_time, nxt, start
 
 	current_id = _id
 
@@ -229,7 +266,7 @@ def threaded_client(conn, _id):
 
 				# only check for collison if the game has started
 				if start:
-					check_collision(players, balls)
+					check_collision(players, balls, dark)
 					player_collision(players)
 
 				# if the amount of balls is less than 150 create more
@@ -237,16 +274,17 @@ def threaded_client(conn, _id):
 					create_balls(balls, random.randrange(100,150))
 					print("[GAME] Generating more orbs")
 
-				send_data = pickle.dumps((balls,players, game_time))
+				send_data = pickle.dumps((dark,balls,players, game_time))
 
 			elif data.split(" ")[0] == "id":
 				send_data = str.encode(str(current_id))  # if user requests id then send it
 
 			elif data.split(" ")[0] == "jump":
-				send_data = pickle.dumps((balls,players, game_time))
+				send_data = pickle.dumps((dark, balls,players, game_time))
 			else:
 				# any other command just send back list of players
-				send_data = pickle.dumps((balls,players, game_time))
+				send_data = pickle.dumps((dark, balls,players, game_time))
+				
 
 			# send data back to clients
 			conn.send(send_data)
@@ -269,6 +307,7 @@ def threaded_client(conn, _id):
 
 # setup level with balls
 create_balls(balls, random.randrange(200,250))
+create_bombs(dark, random.randrange(1,3))
 
 print("[GAME] Setting up level")
 print("[SERVER] Waiting for connections")
