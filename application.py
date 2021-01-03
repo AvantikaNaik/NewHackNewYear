@@ -424,12 +424,12 @@ def checkGuess(app, letter):
 #Drawing Stuff
 ##############################################
 def drawTitleScreen(app, canvas):
-    canvas.create_text(app.width//2, app.height//4, fill="white", text="Welcome to", font="Arial 40 bold")
-    canvas.create_text(app.width//2, app.height//2, fill="white", text="*INSERT NAME HERE*", font="Arial 55 bold")
-    canvas.create_text(app.width//2, 3 * app.height//4, fill="white", text="A cool and interesting subtitle", font="Arial 40 bold")
+    canvas.create_text(app.width//2, app.height//4, fill="white", text="Welcome to the", font="Arial 40 bold")
+    canvas.create_text(app.width//2, app.height//2, fill="white", text="HACKER GAMES", font="Arial 55 bold")
+    canvas.create_text(app.width//2, 3 * app.height//4, fill="white", text="May the best hacker win!", font="Arial 40 bold")
 
 def drawGameMenuAnimation(app, canvas):
-    canvas.create_text(app.width//2, app.height//2, fill="black", text="OUR GAMES...", font="Arial 55 bold")
+    canvas.create_text(app.width//2, app.height//2, fill="black", text="Choose Wisely!", font="Arial 55 bold")
 
 def drawGames(app, canvas):
     xMargin = app.width//25
