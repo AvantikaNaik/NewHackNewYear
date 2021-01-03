@@ -32,7 +32,38 @@ from client import Network
 import random
 import os
 
-from game import agario
+from game import convert_time, redraw_window, agario, getname
+
+
+def playagario():
+    pygame.font.init()
+
+    # Constants
+    PLAYER_RADIUS = 10
+    START_VEL = 9
+    BALL_RADIUS = 5
+    dark_radius_add = 10
+
+    W, H = 1600, 830
+
+    NAME_FONT = pygame.font.SysFont("comicsans", 20)
+    TIME_FONT = pygame.font.SysFont("comicsans", 30)
+    SCORE_FONT = pygame.font.SysFont("comicsans", 26)
+
+    COLORS = [(255,0,0),(50, 1, 0), (255, 128, 0), (255,255,0), (128,255,0),(0,255,0),(0,255,128),(0,255,255),(0, 128, 255), (0,0,255), (0,0,255), (128,0,255),(255,0,255), (255,0,128),(128,128,128), (0,0,0)]
+
+    # Dynamic Variables
+    players = {}
+    balls = []
+    dark = []
+    
+    os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (0,30)
+    # setup pygame window
+    WIN = pygame.display.set_mode((W,H))
+    pygame.display.set_caption("Blobs")
+    # start game
+    name = getname()
+    agario(name)
 
 ######################
 # Snake Stuff
@@ -459,7 +490,7 @@ def timerFired(app):
     if app.agarioMode and app.runningAgario == False:
         print("entered")
         app.runningAgario = True
-        agario(app)
+        playagario()
         app.agarioMode = False
         app.runningAgario = False
 
