@@ -1,5 +1,6 @@
 
 from cmu_112_graphics import *
+import random
 #singleplayer pong
 def appStarted(app):
     app.waitingForKeyPress = True
@@ -8,7 +9,8 @@ def appStarted(app):
 def resetApp(app):
     app.timerDelay = 50
     app.dotsLeft = 2
-    app.score = 0
+    app.leftScore = 0
+    app.rightScore = 0
     app.paddleX0 = 20
     app.paddleX1 = 40
     app.paddleY0 = 20
@@ -28,8 +30,10 @@ def resetApp(app):
 def resetDot(app):
     app.dotCx = app.width//2
     app.dotCy = app.height//2
-    app.dotDx = -10
-    app.dotDy = -3
+    i = random.randint(1, 4)
+    app.dotDx = -10 * ((-1)**i)
+    app.dotDy = -3 * ((-1)**i)
+    app.timer = 0
 
 def movePaddleDown(app):
     dy = min(app.paddleSpeed, app.height - app.margin - app.paddleY1)
@@ -51,6 +55,15 @@ def movePaddle2Up(app):
     app.paddle2Y0 -= dy
     app.paddle2Y1 -= dy
 
+def moveAIPaddle(app):
+    paddleMid = (app.paddle2Y0 + app.paddle2Y1)//2
+    offset = random.randint(1, 28)
+    offset2 = random.randint(1, 28)
+    if app.dotCy <= paddleMid - offset:
+        movePaddle2Up(app)
+    if app.dotCy > paddleMid + offset2:
+        movePaddle2Down(app)
+
 def keyPressed(app, event):
     if app.gameOver:
         resetApp(app)
@@ -59,17 +72,19 @@ def keyPressed(app, event):
         app.dotsLeft -= 1
     elif (event.key == 'Down'):
         movePaddleDown(app)
-        movePaddle2Down(app)
+        #movePaddle2Down(app)
     elif (event.key == 'Up'):
         movePaddleUp(app)
-        movePaddle2Up(app)
+        #movePaddle2Up(app)
 
 def timerFired(app):
-    doStep(app)
-
-def doStep(app):
     if not app.waitingForKeyPress and not app.gameOver:
         moveDot(app)
+        moveAIPaddle(app)
+        app.timer += 1
+        if app.timer > 50:
+            app.timerDelay -= 1
+            app.timer = 0
 
 def dotWentOffEdge(app):
     if app.dotsLeft == 0:
@@ -99,14 +114,14 @@ def moveDot(app):
         app.dotDy = -app.dotDy
     elif dotIntersectsPaddle(app):
         # The dot hit the paddle!
-        app.score += 1 # hurray!
+        app.leftScore += 1 # hurray!
         app.dotDx = -app.dotDx
         app.dotCx = app.paddleX1
         dToMiddleY = app.dotCy - (app.paddleY0 + app.paddleY1)/2
         dampeningFactor = 3 # smaller = more extreme bounces
         app.dotDy = dToMiddleY / dampeningFactor
     elif dotIntersectPaddle2(app):
-        app.score += 1 # hurray
+        app.rightScore += 1 
         app.dotDx = -app.dotDx
         app.dotCx = app.paddle2X1
         dToMiddleY = app.dotCy - (app.paddle2Y0 + app.paddle2Y1)/2
@@ -119,9 +134,12 @@ def moveDot(app):
 def drawAppInfo(app, canvas):
     font = 'Arial 18 bold'
     canvas.create_text(app.width-70, 20,
-                       text=f'Score: {app.score}',
+                       text=f'Score: {app.rightScore}',
                        font=font)
-    canvas.create_text(app.width-70, app.height-20,
+    canvas.create_text(70, 20,
+                        text=f'Score: {app.leftScore}',
+                        font=font)
+    canvas.create_text(app.width//2, app.height-20,
                        text=f'Dots Left: {app.dotsLeft}',
                        font=font)
 
