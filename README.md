@@ -35,12 +35,12 @@ Included in this application are 5 games:
     # Info on running Agario!
     There should be an easy way to connect clients on separate networks, but the most secure way is through creating a Linux server, which we didn't have time to explore this weekend. 
     Those living close to you are special, too! Here are the instructions to running Agario on your local network:
-    1. Run server.py (I ran it using command prompt and I recommend it!). 
-    You should see this show up:
+    1. One person needs to run server.py (I ran it using command prompt and I recommend it!). 
+    They should see this show up:
     [SERVER] Server Started with local ip "XXX.XXX.X.XXX" (your ip is different)
     [GAME] Setting up level
     [SERVER] Waiting for connections
-    2. Open client.py on Spyder or any IDE and change self.host = "192.168.0.133" to the IP address that showed up in step 1. Save your changes to the client.py file.
+    2. Have all clients (those who want to play the game. the person running the server can play too) open client.py on Spyder or any IDE and change self.host = "192.168.0.133" to the IP address that showed up in step 1. Save your changes to the client.py file.
     3. Run game.py. I ran it on Spyder. 
     
 Connection to New Year Theme: 
