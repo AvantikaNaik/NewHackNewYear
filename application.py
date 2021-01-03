@@ -1,6 +1,6 @@
 ##############################################
-#New Year New Hack
-#Jackbox Minigames
+# New Year New Hack
+# Jackbox Minigames
 ##############################################
 
 from cmu_112_graphics import *
@@ -13,15 +13,18 @@ import sys
 from cards import Player
 from cards import Deck
 from cards import Card
+
 sys.path.append('war')
 from war import War
 
-#Hangman stuff
+# Hangman stuff
 from random_words import RandomWords
+
 rw = RandomWords()
 
+
 ######################
-#Snake Stuff
+# Snake Stuff
 #####################
 class Node():
     def __init__(self, parent, position):
@@ -40,28 +43,31 @@ class Node():
 
     def __hash__(self):
         return hash((self.parent, self.position, self.distance, self.heuristic, self.cost))
+
+
 ##############################################
 # General Purpose Helper Functions
 ##############################################
 
 def getCell(app, x, y):
-    gridWidth  = app.width - 2*app.margin
-    gridHeight = app.height - 2*app.margin
-    cellWidth  = gridWidth / app.cols
+    gridWidth = app.width - 2 * app.margin
+    gridHeight = app.height - 2 * app.margin
+    cellWidth = gridWidth / app.cols
     cellHeight = gridHeight / app.rows
     row = int((y - app.margin) // cellHeight)
     col = int((x - app.margin) // cellWidth)
     return (row, col)
 
+
 def getCellBounds(app, row, col):
-    gridWidth  = app.width - 2*app.margin
-    gridHeight = app.height - 2*app.margin
+    gridWidth = app.width - 2 * app.margin
+    gridHeight = app.height - 2 * app.margin
     cellWidth = gridWidth / app.cols
     cellHeight = gridHeight / app.rows
     x0 = app.margin + col * cellWidth
-    x1 = app.margin + (col+1) * cellWidth
+    x1 = app.margin + (col + 1) * cellWidth
     y0 = app.margin + row * cellHeight
-    y1 = app.margin + (row+1) * cellHeight
+    y1 = app.margin + (row + 1) * cellHeight
     return (x0, y0, x1, y1)
 
 
@@ -76,10 +82,10 @@ def playWar(app):
     for player in players:
         print(player.name)
 
-
     game = War(players)
     while len(players[0].hand) > 0:
-        nextMove = input("Enter 'move' to make the next move, enter 'hands' to check how many cards are in each player's hands,\n or enter 'piles' to see how many cards are in each player's piles.\n")
+        nextMove = input(
+            "Enter 'move' to make the next move, enter 'hands' to check how many cards are in each player's hands,\n or enter 'piles' to see how many cards are in each player's piles.\n")
         if nextMove == "move":
             game.playRound()
         elif nextMove == "hands":
@@ -99,13 +105,15 @@ def playWar(app):
     app.showingWarWinner = True
     app.warMode = False
 
+
 def playSnake(app):
     if app.gameOver or app.waitingForFirstKeyPress: return
     moveWorm(app)
     takeStep(app)
 
+
 ##############################################
-#App Stuff
+# App Stuff
 ##############################################
 def appStarted(app):
     app.titleScreenShowing = True
@@ -121,25 +129,25 @@ def appStarted(app):
     app.skribbleMode = False
     app.warMode = False
 
-    #War Varaibles
+    # War Varaibles
     app.showingWarWinner = False
     app.playerName = ""
     app.playerPile = ""
     app.warWinnerCounter = 0
 
-    #Snake Variables
+    # Snake Variables
     app.rows = 20
     app.cols = 20
-    app.margin = 5 # margin around grid
+    app.margin = 5  # margin around grid
     app.timerDelay = 250
     initSnakeAndWormAndFood(app)
     app.waitingForFirstKeyPress = True
     app.showSnakeModeOptions = False
     app.aiSnakeMode = False
     app.multiplayerSnakeMode = False
-    app.gameOverCounter = 0 
+    app.gameOverCounter = 0
 
-    #Hangman Variables
+    # Hangman Variables
     app.word = rw.random_word()
     app.guessedLetters = set()
     app.currentList = []
@@ -152,12 +160,14 @@ def appStarted(app):
     app.hangmanCounter = 0
     app.bodyParts = 0
 
+
 def generateLists(app):
     listLen = len(app.word)
     app.currentList = []
     app.wordList = list(app.word)
     for i in range(len(app.word)):
         app.currentList.append("_")
+
 
 def resetHangman(app):
     app.word = rw.random_word()
@@ -168,13 +178,15 @@ def resetHangman(app):
     app.bodyParts = 0
     app.journalEntry = False
 
+
 def initSnakeAndWormAndFood(app):
-    app.snake = [(0,0)]
-    app.direction = (0, +1) # (drow, dcol)
+    app.snake = [(0, 0)]
+    app.direction = (0, +1)  # (drow, dcol)
     app.gameOver = False
-    app.worm = [(app.rows-1, app.cols-1)]
-    app.wormdirection = (-1,0) #(drow, dcol)
+    app.worm = [(app.rows - 1, app.cols - 1)]
+    app.wormdirection = (-1, 0)  # (drow, dcol)
     placeFood(app)
+
 
 def astar(app, startval, endval):
     # Init start and end nodes, and lists
@@ -209,23 +221,26 @@ def astar(app, startval, endval):
         for (drow, dcol) in [(0, -1), (0, 1), (-1, 0), (1, 0)]:
             row = current.position[0] + drow
             col = current.position[1] + dcol
-            if 0 <= row < app.rows and 0 <= col < app.cols and wormCanMove(app, drow, dcol, row, col) : 
-                new_node = Node(current, (row,col))
+            if 0 <= row < app.rows and 0 <= col < app.cols and wormCanMove(app, drow, dcol, row, col):
+                new_node = Node(current, (row, col))
                 children.append(new_node)
 
-        # Thanks to TA Elena H for helping me debug this part! 
+        # Thanks to TA Elena H for helping me debug this part!
         for child in children:
             if child not in closedList:
                 child.distance = current.distance + 1
-                child.heuristic = ((child.position[0] - end.position[0]) ** 2) + ((child.position[1] - end.position[1]) ** 2)
-                child.cost = child.distance + child.heuristic  
-            if child not in openList:                    
+                child.heuristic = ((child.position[0] - end.position[0]) ** 2) + (
+                            (child.position[1] - end.position[1]) ** 2)
+                child.cost = child.distance + child.heuristic
+            if child not in openList:
                 openList.append(child)
 
+
 def wormCanMove(app, drow, dcol, row, col):
-    if (row + drow , col + dcol) in app.snake:
+    if (row + drow, col + dcol) in app.snake:
         return False
     return True
+
 
 def moveWorm(app):
     wormRow, wormCol = app.worm[0]
@@ -246,7 +261,7 @@ def moveWorm(app):
             app.wormdirection = (-1, +1)
         elif nextCol < wormCol:
             app.wormdirection = (-1, -1)
-        else:    
+        else:
             app.wormdirection = (-1, 0)
     else:
         if nextCol > wormCol:
@@ -301,34 +316,40 @@ def timerFired(app):
         resetHangman(app)
         app.hangmanCounter = 0
 
+
 def mousePressed(app, event):
-    xMargin = app.width//25
-    yMargin = app.height//25
+    xMargin = app.width // 25
+    yMargin = app.height // 25
     if app.gamesShowing and not app.gameMenuAnimation and not app.showSnakeModeOptions and not app.snakeMode and not app.hangmanMode:
-        if (xMargin < event.x < app.width//2-xMargin) and (yMargin < event.y < app.height//2 - yMargin):
+        if (xMargin < event.x < app.width // 2 - xMargin) and (yMargin < event.y < app.height // 2 - yMargin):
             app.hangmanMode = True
             print("hangman")
-        elif (xMargin < event.x < app.width//2-xMargin) and (app.height//2 + yMargin < event.y < app.height - yMargin):
+        elif (xMargin < event.x < app.width // 2 - xMargin) and (
+                app.height // 2 + yMargin < event.y < app.height - yMargin):
             app.warMode = True
-        elif (app.width//2 + xMargin < event.x < app.width-xMargin) and (yMargin < event.y < app.height//2 - yMargin):
+        elif (app.width // 2 + xMargin < event.x < app.width - xMargin) and (
+                yMargin < event.y < app.height // 2 - yMargin):
             app.skribbleMode = True
             print("skribble")
-        elif (app.width//2 + xMargin < event.x < app.width-xMargin) and (app.height//2 + yMargin < event.y < app.height - yMargin): 
+        elif (app.width // 2 + xMargin < event.x < app.width - xMargin) and (
+                app.height // 2 + yMargin < event.y < app.height - yMargin):
             app.snakeMode = True
     if app.showSnakeModeOptions:
-        if 0 < event.x < app.width//2:
+        if 0 < event.x < app.width // 2:
             initSnakeAndWormAndFood(app)
             app.waitingForFirstKeyPress = True
             app.showSnakeModeOptions = False
             app.gameOverCounter = 0
             app.aiSnakeMode = True
-        else: 
+        else:
             app.multiplayerSnakeMode = True
             app.showSnakeModeOptions = False
     if app.hangmanMode:
-        if app.width//4 < event.x < 3*app.width//4 and 3 * app.height//4 < event.y < 15 * app.height//16:
+        if app.width // 4 < event.x < 3 * app.width // 4 and 3 * app.height // 4 < event.y < 15 * app.height // 16:
             app.journalEntry = True
-        else: app.journalEntry = False
+        else:
+            app.journalEntry = False
+
 
 def keyPressed(app, event):
     if app.snakeMode:
@@ -338,10 +359,14 @@ def keyPressed(app, event):
             initSnakeAndWormAndFood(app)
         elif app.gameOver:
             return
-        elif (event.key == 'Up'):      app.direction = (-1, 0)
-        elif (event.key == 'Down'):  app.direction = (+1, 0)
-        elif (event.key == 'Left'):  app.direction = (0, -1)
-        elif (event.key == 'Right'): app.direction = (0, +1)
+        elif (event.key == 'Up'):
+            app.direction = (-1, 0)
+        elif (event.key == 'Down'):
+            app.direction = (+1, 0)
+        elif (event.key == 'Left'):
+            app.direction = (0, -1)
+        elif (event.key == 'Right'):
+            app.direction = (0, +1)
     elif app.hangmanMode:
         if app.journalEntry:
             if app.textbox == "...":
@@ -351,35 +376,36 @@ def keyPressed(app, event):
             if event.key == "Backspace":
                 endVal = len(app.textbox)
                 if endVal != 0:
-                    app.textbox = app.textbox[:endVal-1]
+                    app.textbox = app.textbox[:endVal - 1]
                 else:
                     app.textbox = ""
             elif event.key == "Space":
                 app.textbox += " "
-            elif event.key in {"Up", "Down", "Left","Right"}:
-                app.textbox += "" 
+            elif event.key in {"Up", "Down", "Left", "Right"}:
+                app.textbox += ""
             elif event.key not in {"Backspace", "Enter", "Escape"}:
                 app.textbox += event.key
-        else: 
+        else:
             if event.key == "Enter":
-                if app.textbox == "...": 
+                if app.textbox == "...":
                     return
                 else:
                     app.guessedLetters.add
                     checkGuess(app, app.textbox)
                     app.textbox = "..."
 
+
 def takeStep(app):
     (drow, dcol) = app.direction
     (wormdrow, wormdcol) = app.wormdirection
     (headwormRow, headwormCol) = app.worm[0]
     (headRow, headCol) = app.snake[0]
-    (newwormRow, newwormCol) = (headwormRow+wormdrow, headwormCol + wormdcol)
-    (newRow, newCol) = (headRow+drow, headCol+dcol)
+    (newwormRow, newwormCol) = (headwormRow + wormdrow, headwormCol + wormdcol)
+    (newRow, newCol) = (headRow + drow, headCol + dcol)
     if ((newRow < 0) or (newRow >= app.rows) or
-        (newCol < 0) or (newCol >= app.cols) or
-        ((newRow, newCol) in app.snake) or
-        (newRow, newCol) in app.worm):
+            (newCol < 0) or (newCol >= app.cols) or
+            ((newRow, newCol) in app.snake) or
+            (newRow, newCol) in app.worm):
         app.gameOver = True
     else:
         app.snake.insert(0, (newRow, newCol))
@@ -389,7 +415,7 @@ def takeStep(app):
             # didn't eat, so remove old tail (slither forward)
             app.snake.pop()
 
-    #slithers forward worm
+    # slithers forward worm
     app.worm.insert(0, (newwormRow, newwormCol))
     if (newwormRow, newwormCol) in app.snake:
         app.gameOver = True
@@ -403,11 +429,12 @@ def placeFood(app):
     # Keep trying random positions until we find one that is not in
     # the snake. Note: there are more sophisticated ways to do this.
     while True:
-        row = random.randint(0, app.rows-1)
-        col = random.randint(0, app.cols-1)
-        if (row,col) not in app.snake and (row, col) not in app.worm:
+        row = random.randint(0, app.rows - 1)
+        col = random.randint(0, app.cols - 1)
+        if (row, col) not in app.snake and (row, col) not in app.worm:
             app.foodPosition = (row, col)
             return
+
 
 def checkGuess(app, letter):
     if len(letter) != 1:
@@ -415,104 +442,138 @@ def checkGuess(app, letter):
     elif letter not in app.wordList:
         app.bodyParts += 1
         app.guessedLetters.add(letter)
-    else: 
+    else:
         for i, wordLetter in enumerate(app.wordList):
             if letter == wordLetter:
                 app.currentList[i] = app.wordList[i]
 
+
 ##############################################
-#Drawing Stuff
+# Drawing Stuff
 ##############################################
 def drawTitleScreen(app, canvas):
-    canvas.create_text(app.width//2, app.height//4, fill="white", text="Welcome to the", font="Arial 40 bold")
-    canvas.create_text(app.width//2, app.height//2, fill="white", text="HACKER GAMES", font="Arial 55 bold")
-    canvas.create_text(app.width//2, 3 * app.height//4, fill="white", text="May the best hacker win!", font="Arial 40 bold")
+    canvas.create_text(app.width//2, app.height//3.5, fill="white", text="Welcome to the", font="Rockwell 36 ")
+    canvas.create_text(app.width//2, app.height//2, fill="white", text="HACKER GAMES", font="Magneto 50 bold")
+    canvas.create_text(app.width//2, 2.90 * app.height//4, fill="white", text="May the best hacker win!", font="Rockwell 40 ")
 
 def drawGameMenuAnimation(app, canvas):
-    canvas.create_text(app.width//2, app.height//2, fill="black", text="Choose Wisely!", font="Arial 55 bold")
+    canvas.create_text(app.width//2, app.height//2, fill="black", text="Choose Wisely!", font="Harrington 42 bold")
+
 
 def drawGames(app, canvas):
-    xMargin = app.width//25
-    yMargin = app.height//25
-    canvas.create_rectangle(xMargin, yMargin, app.width//2-xMargin, app.height//2 - yMargin, fill="white")
-    canvas.create_rectangle(xMargin, app.height//2 + yMargin, app.width//2-xMargin, app.height - yMargin, fill="white")
-    canvas.create_rectangle(app.width//2 + xMargin, yMargin, app.width-xMargin, app.height//2 - yMargin, fill="white")
-    canvas.create_rectangle(app.width//2 + xMargin, app.height//2 + yMargin, app.width-xMargin, app.height - yMargin, fill="white")
-    drawHangman(app, canvas, xMargin, yMargin, app.width//2-xMargin, app.height//2 - yMargin)
-    drawWar(app, canvas, xMargin, app.height//2 + yMargin, app.width//2-xMargin, app.height - yMargin)
-    drawPong(app, canvas, app.width//2 + xMargin, yMargin, app.width-xMargin, app.height//2 - yMargin)
-    drawSnakeArt(app, canvas, app.width//2 + xMargin, app.height//2 + yMargin, app.width-xMargin, app.height - yMargin)
+    xMargin = app.width // 25
+    yMargin = app.height // 25
+    canvas.create_rectangle(xMargin, yMargin, app.width // 2 - xMargin, app.height // 2 - yMargin, fill="white")
+    canvas.create_rectangle(xMargin, app.height // 2 + yMargin, app.width // 2 - xMargin, app.height - yMargin,
+                            fill="white")
+    canvas.create_rectangle(app.width // 2 + xMargin, yMargin, app.width - xMargin, app.height // 2 - yMargin,
+                            fill="white")
+    canvas.create_rectangle(app.width // 2 + xMargin, app.height // 2 + yMargin, app.width - xMargin,
+                            app.height - yMargin, fill="white")
+    drawHangman(app, canvas, xMargin, yMargin, app.width // 2 - xMargin, app.height // 2 - yMargin)
+    drawWar(app, canvas, xMargin, app.height // 2 + yMargin, app.width // 2 - xMargin, app.height - yMargin)
+    drawPong(app, canvas, app.width // 2 + xMargin, yMargin, app.width - xMargin, app.height // 2 - yMargin)
+    drawSnakeArt(app, canvas, app.width // 2 + xMargin, app.height // 2 + yMargin, app.width - xMargin,
+                 app.height - yMargin)
+
 
 def drawPong(app, canvas, x1, y1, x2, y2):
     gridWidth = x2 - x1
     gridHeight = y2 - y1
-    midX = (x2 + x1)//2
-    midY = (y2 + y1)//2
+    midX = (x2 + x1) // 2
+    midY = (y2 + y1) // 2
 
-    canvas.create_rectangle(x1 + gridWidth//10, y1 + gridHeight//10, x1 + 2*gridWidth//10, y1 + 6 * gridHeight//10, fill="black")
-    canvas.create_rectangle(x2 - 2 * gridWidth//10, y2 - 6 * gridHeight//10, x2 - gridWidth//10, y2 - gridHeight//10, fill="black")
-    canvas.create_oval(midX - gridWidth//20, midY - gridWidth//20, midX + gridWidth//20, midY + gridWidth//20, fill="black")
-    canvas.create_text(midX, y2 - gridHeight//16, text="Pong")
+    canvas.create_rectangle(x1 + gridWidth // 10, y1 + gridHeight // 10, x1 + 2 * gridWidth // 10,
+                            y1 + 6 * gridHeight // 10, fill="black")
+    canvas.create_rectangle(x2 - 2 * gridWidth // 10, y2 - 6 * gridHeight // 10, x2 - gridWidth // 10,
+                            y2 - gridHeight // 10, fill="black")
+    canvas.create_oval(midX - gridWidth // 20, midY - gridWidth // 20, midX + gridWidth // 20, midY + gridWidth // 20,
+                       fill="black")
+    canvas.create_text(midX, y2 - gridHeight // 16, text="Pong")
 
 
 def drawHangman(app, canvas, x1, y1, x2, y2):
     gridWidth = x2 - x1
     gridHeight = y2 - y1
-    midX = (x2 + x1)//2
-    midY = (y2 + y1)//2
+    midX = (x2 + x1) // 2
+    midY = (y2 + y1) // 2
 
-    canvas.create_oval(midX - gridWidth//8, y1 + gridWidth//12, midX + gridWidth//8, y1 + gridWidth//12 + 2 * gridWidth//8, outline="black", width="5" )
-    canvas.create_line(midX, y1 + gridWidth//12 + 2 * gridWidth//8, midX,  midY + gridHeight//8, width=7, fill="black")
-    canvas.create_line(midX - gridWidth//8, midY, midX + gridWidth//8, midY, width=7, fill="black")
-    canvas.create_line(midX, midY + gridHeight//8, midX - gridWidth//8, y2 - gridHeight//8, width=7, fill="black" )
-    canvas.create_line(midX, midY + gridHeight//8, midX + gridWidth//8, y2 - gridHeight//8, width=7, fill="black" )
-    canvas.create_text(midX, y2 - gridHeight//16, text="Hangman")
+    canvas.create_oval(midX - gridWidth // 8, y1 + gridWidth // 12, midX + gridWidth // 8,
+                       y1 + gridWidth // 12 + 2 * gridWidth // 8, outline="black", width="5")
+    canvas.create_line(midX, y1 + gridWidth // 12 + 2 * gridWidth // 8, midX, midY + gridHeight // 8, width=7,
+                       fill="black")
+    canvas.create_line(midX - gridWidth // 8, midY, midX + gridWidth // 8, midY, width=7, fill="black")
+    canvas.create_line(midX, midY + gridHeight // 8, midX - gridWidth // 8, y2 - gridHeight // 8, width=7, fill="black")
+    canvas.create_line(midX, midY + gridHeight // 8, midX + gridWidth // 8, y2 - gridHeight // 8, width=7, fill="black")
+    canvas.create_text(midX, y2 - gridHeight // 16, text="Hangman")
+
 
 def drawWar(app, canvas, x1, y1, x2, y2):
     gridWidth = x2 - x1
     gridHeight = y2 - y1
-    midX = (x2 + x1)//2
-    midY = (y2 + y1)//2
-    
-    canvas.create_rectangle(x1 + gridWidth//4, y1 + gridHeight//7, x2 - gridWidth//4, y2 - gridHeight//7, width=3)
-    canvas.create_text(x1 + gridWidth//4 + gridWidth//25, y1 + gridHeight//7 + gridWidth//25, text="A", fill="red", font="30")
-    canvas.create_text(x2 - gridWidth//4 - gridWidth//25, y2 - gridHeight//7 - gridWidth//25, text="A", fill="red", font="30")
-    canvas.create_polygon(midX, midY+gridHeight//7, midX-gridHeight//8, midY, midX, midY - gridHeight//7, midX+gridHeight//8, midY, fill="red")
-    canvas.create_text(midX, y2 - gridHeight//16, text="War")
+    midX = (x2 + x1) // 2
+    midY = (y2 + y1) // 2
+
+    canvas.create_rectangle(x1 + gridWidth // 4, y1 + gridHeight // 7, x2 - gridWidth // 4, y2 - gridHeight // 7,
+                            width=3)
+    canvas.create_text(x1 + gridWidth // 4 + gridWidth // 25, y1 + gridHeight // 7 + gridWidth // 25, text="A",
+                       fill="red", font="30")
+    canvas.create_text(x2 - gridWidth // 4 - gridWidth // 25, y2 - gridHeight // 7 - gridWidth // 25, text="A",
+                       fill="red", font="30")
+    canvas.create_polygon(midX, midY + gridHeight // 7, midX - gridHeight // 8, midY, midX, midY - gridHeight // 7,
+                          midX + gridHeight // 8, midY, fill="red")
+    canvas.create_text(midX, y2 - gridHeight // 16, text="War")
+
 
 def drawSkribble(app, canvas, x1, y1, x2, y2):
     gridWidth = x2 - x1
     gridHeight = y2 - y1
-    midX = (x2 + x1)//2
-    midY = (y2 + y1)//2
+    midX = (x2 + x1) // 2
+    midY = (y2 + y1) // 2
 
-    canvas.create_rectangle(midX - gridWidth//8, y1 + gridWidth//12, midX + gridWidth//8, y1 + gridWidth//6, outline="black", width="3", fill="pink" )
-    canvas.create_rectangle(midX - gridWidth//8, y1 + gridWidth//6, midX + gridWidth//8, midY + gridWidth//6, outline="black", width="3", fill="yellow" )
-    canvas.create_line(midX - gridWidth//8 + gridWidth//12, y1 + gridWidth//6, midX - gridWidth//8 + gridWidth//12, midY + gridWidth//6, fill="black", width="3")
-    canvas.create_line(midX - gridWidth//8 + gridWidth//6, y1 + gridWidth//6, midX - gridWidth//8 + gridWidth//6, midY + gridWidth//6, fill="black", width="3")
-    canvas.create_polygon(midX - gridWidth//8, midY + gridWidth//6, midX + gridWidth//8, midY + gridWidth//6, midX, y2-gridHeight//6, fill="PeachPuff2", width=3, outline="black")
-    canvas.create_polygon(midX - gridWidth//16, y2- 3 * (gridHeight//12), midX + gridWidth//16,  y2- 3 * (gridHeight//12), midX, y2-gridHeight//6, fill="black", width=3, outline="black")
-    canvas.create_text(midX, y2 - gridHeight//16, text="Skribble")
+    canvas.create_rectangle(midX - gridWidth // 8, y1 + gridWidth // 12, midX + gridWidth // 8, y1 + gridWidth // 6,
+                            outline="black", width="3", fill="pink")
+    canvas.create_rectangle(midX - gridWidth // 8, y1 + gridWidth // 6, midX + gridWidth // 8, midY + gridWidth // 6,
+                            outline="black", width="3", fill="yellow")
+    canvas.create_line(midX - gridWidth // 8 + gridWidth // 12, y1 + gridWidth // 6,
+                       midX - gridWidth // 8 + gridWidth // 12, midY + gridWidth // 6, fill="black", width="3")
+    canvas.create_line(midX - gridWidth // 8 + gridWidth // 6, y1 + gridWidth // 6,
+                       midX - gridWidth // 8 + gridWidth // 6, midY + gridWidth // 6, fill="black", width="3")
+    canvas.create_polygon(midX - gridWidth // 8, midY + gridWidth // 6, midX + gridWidth // 8, midY + gridWidth // 6,
+                          midX, y2 - gridHeight // 6, fill="PeachPuff2", width=3, outline="black")
+    canvas.create_polygon(midX - gridWidth // 16, y2 - 3 * (gridHeight // 12), midX + gridWidth // 16,
+                          y2 - 3 * (gridHeight // 12), midX, y2 - gridHeight // 6, fill="black", width=3,
+                          outline="black")
+    canvas.create_text(midX, y2 - gridHeight // 16, text="Skribble")
+
 
 def drawSnakeArt(app, canvas, x1, y1, x2, y2):
     gridWidth = x2 - x1
     gridHeight = y2 - y1
-    midX = (x2 + x1)//2
-    midY = (y2 + y1)//2
-    yMargin = gridHeight//7
+    midX = (x2 + x1) // 2
+    midY = (y2 + y1) // 2
+    yMargin = gridHeight // 7
 
-    canvas.create_rectangle(midX-gridWidth//3, y1 + yMargin , midX+gridWidth//3, y1+ (2 * yMargin), fill="green", width=0)
-    canvas.create_rectangle(midX-gridWidth//3, y1+ (2 * yMargin), midX-gridWidth//3 + yMargin, y1 + (3 * yMargin), fill="green", width=0)
-    canvas.create_rectangle(midX-gridWidth//3, y1 + (3 * yMargin), midX+gridWidth//3, y1 + (4 * yMargin), fill="green", width=0)
-    canvas.create_rectangle(midX+gridWidth//3 - yMargin, y1 + (4 * yMargin), midX+gridWidth//3, y1 + (5 * yMargin), fill="green", width=0)
-    canvas.create_rectangle(midX-gridWidth//3, y1 + (5 * yMargin), midX+gridWidth//3, y1+ (6 * yMargin), fill="green", width=0)
-    eyeOffset = gridWidth//30
-    canvas.create_oval(midX+gridWidth//3 - gridHeight//7+5, y1+yMargin + 5, midX+gridWidth//3 - gridHeight//7+2*eyeOffset, y1+yMargin + 2*eyeOffset, fill="gray")
-    canvas.create_text(midX, y2 - gridHeight//16, text="Snake")
+    canvas.create_rectangle(midX - gridWidth // 3, y1 + yMargin, midX + gridWidth // 3, y1 + (2 * yMargin),
+                            fill="green", width=0)
+    canvas.create_rectangle(midX - gridWidth // 3, y1 + (2 * yMargin), midX - gridWidth // 3 + yMargin,
+                            y1 + (3 * yMargin), fill="green", width=0)
+    canvas.create_rectangle(midX - gridWidth // 3, y1 + (3 * yMargin), midX + gridWidth // 3, y1 + (4 * yMargin),
+                            fill="green", width=0)
+    canvas.create_rectangle(midX + gridWidth // 3 - yMargin, y1 + (4 * yMargin), midX + gridWidth // 3,
+                            y1 + (5 * yMargin), fill="green", width=0)
+    canvas.create_rectangle(midX - gridWidth // 3, y1 + (5 * yMargin), midX + gridWidth // 3, y1 + (6 * yMargin),
+                            fill="green", width=0)
+    eyeOffset = gridWidth // 30
+    canvas.create_oval(midX + gridWidth // 3 - gridHeight // 7 + 5, y1 + yMargin + 5,
+                       midX + gridWidth // 3 - gridHeight // 7 + 2 * eyeOffset, y1 + yMargin + 2 * eyeOffset,
+                       fill="gray")
+    canvas.create_text(midX, y2 - gridHeight // 16, text="Snake")
 
 
 def drawCard(app, canvas, rank, suit):
     pass
+
 
 def drawBoard(app, canvas):
     for row in range(app.rows):
@@ -520,15 +581,18 @@ def drawBoard(app, canvas):
             (x0, y0, x1, y1) = getCellBounds(app, row, col)
             canvas.create_rectangle(x0, y0, x1, y1, fill='white')
 
+
 def drawSnake(app, canvas):
     for (row, col) in app.snake:
         (x0, y0, x1, y1) = getCellBounds(app, row, col)
         canvas.create_oval(x0, y0, x1, y1, fill='green')
 
+
 def drawWorm(app, canvas):
     for (row, col) in app.worm:
         (x0, y0, x1, y1) = getCellBounds(app, row, col)
         canvas.create_oval(x0, y0, x1, y1, fill='orange')
+
 
 def drawFood(app, canvas):
     if (app.foodPosition != None):
@@ -536,60 +600,74 @@ def drawFood(app, canvas):
         (x0, y0, x1, y1) = getCellBounds(app, row, col)
         canvas.create_oval(x0, y0, x1, y1, fill='red')
 
+
 def drawGameOver(app, canvas):
     if (app.gameOver):
         canvas.create_rectangle(0, 0, app.width, app.height, fill="pink")
-        canvas.create_text(app.width/2, app.height/2, text='Game over!',
-                           font='Arial 26 bold')
+        canvas.create_text(app.width / 2, app.height / 2, text='Game over!',
+                           font='Algerian 50 ')
 
 def drawTextBox(app, canvas):
-    if app.journalEntry: fill="pink"
-    else: fill="white"
-    canvas.create_rectangle(app.width//4, 3 * app.height//4, 3*app.width//4, 15 * app.height//16, fill=fill)
-    canvas.create_text(app.width//2, 7 * app.height//8, text=app.textbox)
+    if app.journalEntry:
+        fill = "pink"
+    else:
+        fill = "white"
+    canvas.create_rectangle(app.width // 4, 3 * app.height // 4, 3 * app.width // 4, 15 * app.height // 16, fill=fill)
+    canvas.create_text(app.width // 2, 7 * app.height // 8, text=app.textbox)
+
 
 def drawNoose(app, canvas):
-    x = app.width//20
-    canvas.create_line(2*x, 2 * x, 2 *x, 8 * x, width=5)
-    canvas.create_line(2 *x, 2 * x,6*x, 2*x, width=5)
-    canvas.create_line(2*x, 2 * x, 2*x, 10 * x, width=5)
-    canvas.create_line(x, 10*x, 3 * x,10*x, width=5)
-    canvas.create_line(6 *x, 4 * x, 6 * x, 2*x, width=5)
+    x = app.width // 20
+    canvas.create_line(2 * x, 2 * x, 2 * x, 8 * x, width=5)
+    canvas.create_line(2 * x, 2 * x, 6 * x, 2 * x, width=5)
+    canvas.create_line(2 * x, 2 * x, 2 * x, 10 * x, width=5)
+    canvas.create_line(x, 10 * x, 3 * x, 10 * x, width=5)
+    canvas.create_line(6 * x, 4 * x, 6 * x, 2 * x, width=5)
+
 
 def drawBlanks(app, canvas):
     numBlanks = len(app.word)
-    lenBlanks = (7 * app.width//10) // numBlanks - 20
-    canvas.create_text(6.5 * app.width//10, 2 * app.width//10, text=app.currentList, font = f"Arial {lenBlanks}")
+    lenBlanks = (7 * app.width // 10) // numBlanks - 20
+    canvas.create_text(6.5 * app.width // 10, 2 * app.width // 10, text=app.currentList, font=f"Arial {lenBlanks}")
+
 
 def guesses(app, canvas):
-    canvas.create_text(app.width//2, 2 * app.height//3, text = f"Guessed Letters: {app.guessedLetters}")
+    canvas.create_text(app.width // 2, 2 * app.height // 3, text=f"Guessed Letters: {app.guessedLetters}")
+
 
 def drawUsage(app, canvas):
-    canvas.create_text(app.width//2, 23 * app.height//24, text = "Once you type a letter, exit the text box and hit enter to submit the letter" )
+    canvas.create_text(app.width // 2, 23 * app.height // 24,
+                       text="Once you type a letter, exit the text box and hit enter to submit the letter")
+
 
 def drawHead(app, canvas):
-    x = app.width//20
-    canvas.create_oval(5 * x, 4* x, 7*x, 6*x)
+    x = app.width // 20
+    canvas.create_oval(5 * x, 4 * x, 7 * x, 6 * x)
+
 
 def drawBody(app, canvas):
-    x = app.width//20
-    canvas.create_line(6 * x, 6*x, 6*x, 8*x)
+    x = app.width // 20
+    canvas.create_line(6 * x, 6 * x, 6 * x, 8 * x)
+
 
 def drawLeftArm(app, canvas):
-    x = app.width//20
-    canvas.create_line(6 * x, 7*x, 5*x, 7*x)
+    x = app.width // 20
+    canvas.create_line(6 * x, 7 * x, 5 * x, 7 * x)
+
 
 def drawRightArm(app, canvas):
-    x = app.width//20
-    canvas.create_line(6 * x, 7*x, 7*x, 7*x)
+    x = app.width // 20
+    canvas.create_line(6 * x, 7 * x, 7 * x, 7 * x)
+
 
 def drawLeftLeft(app, canvas):
-    x = app.width//20
-    canvas.create_line(6 * x, 8*x, 5*x, 10*x)
+    x = app.width // 20
+    canvas.create_line(6 * x, 8 * x, 5 * x, 10 * x)
+
 
 def drawRightLeg(app, canvas):
-    x = app.width//20
-    canvas.create_line(6 * x, 8*x, 7*x, 10*x)
+    x = app.width // 20
+    canvas.create_line(6 * x, 8 * x, 7 * x, 10 * x)
 
 
 def redrawAll(app, canvas):
@@ -597,27 +675,30 @@ def redrawAll(app, canvas):
     if app.titleScreenShowing:
         canvas.create_rectangle(0, 0, app.width, app.height, fill="purple")
         drawTitleScreen(app, canvas)
-    if app.gameMenuAnimation: 
+    if app.gameMenuAnimation:
         drawGameMenuAnimation(app, canvas)
     if app.gamesShowing:
         drawGames(app, canvas)
     if app.warMode:
         canvas.create_rectangle(0, 0, app.width, app.height, fill="pink")
-        canvas.create_text(app.width//2, app.height//4, text="War is an n-player game!", font="Arial 30 bold")
-        canvas.create_text(app.width//2, 2 * app.height//4, text="Play it in your terminal!", font="Arial 30 bold")
-        drawWar(app, canvas, app.width//4, app.height//2, 3 * app.width//4, 15 * app.height//16)
+        canvas.create_text(app.width // 2, app.height // 4, text="War is a 2-4 player game!", font="Corbel 30 bold")
+        canvas.create_text(app.width // 2, 2 * app.height // 4, text="Play it in your terminal!", font="Corbel 30 bold")
+        drawWar(app, canvas, app.width // 4, app.height // 2, 3 * app.width // 4, 15 * app.height // 16)
     if app.showingWarWinner:
         canvas.create_rectangle(0, 0, app.width, app.height, fill="pink")
-        canvas.create_text(app.width//2, app.height//4, text="Congrats! The winner is", font="Arial 30 bold")
-        canvas.create_text(app.width//2, 2 * app.height//4, text=f"{str(app.playerName)} with {str(len(app.playerPile))} cards!", font="Arial 30 bold")
+        canvas.create_text(app.width // 2, app.height // 4, text="Congrats! The winner is", font="Corbel 30 bold")
+        canvas.create_text(app.width // 2, 2 * app.height // 4,
+                           text=f"{str(app.playerName)} with {str(len(app.playerPile))} cards!", font="Corbel 30 bold")
+        canvas.create_text(app.width // 2, 2.5 * app.height // 4, text="You're offically a hacker!", font="Corbel 30 bold")
+
     if app.gameOver:
         drawGameOver(app, canvas)
     if app.snakeMode and not app.gameOver:
         if (app.waitingForFirstKeyPress):
             canvas.create_rectangle(0, 0, app.width, app.height, fill="pink")
-            canvas.create_text(app.width/2, app.height/2,
-                            text='Press any key to start AI snake!',
-                            font='Arial 26 bold')
+            canvas.create_text(app.width / 2, app.height / 2,
+                               text='Press any key to start AI snake!',
+                               font='Corbel 26 bold')
         else:
             drawBoard(app, canvas)
             drawSnake(app, canvas)
@@ -625,25 +706,25 @@ def redrawAll(app, canvas):
             drawWorm(app, canvas)
             drawGameOver(app, canvas)
     if app.showSnakeModeOptions and not app.gameOver:
-        canvas.create_rectangle(0, 0, app.width//2, app.height, fill="pink")
-        canvas.create_text(app.width/4, app.height//2,
-                            text='AI snake!',
-                            font='Arial 26 bold')
-        canvas.create_rectangle(app.width//2, 0, app.width, app.height, fill="light green")
-        canvas.create_text(3 * app.width//4, app.height//2,
-                            text='Multiplayer Snake!',
-                            font='Arial 26 bold')
+        canvas.create_rectangle(0, 0, app.width // 2, app.height, fill="pink")
+        canvas.create_text(app.width / 4, app.height // 2,
+                           text='AI Snake!',
+                           font='Corbel 26 bold')
+        canvas.create_rectangle(app.width // 2, 0, app.width, app.height, fill="light green")
+        canvas.create_text(3 * app.width // 4, app.height // 2,
+                           text='Multiplayer Snake!',
+                           font='Corbel 26 bold')
     if app.hangmanMode:
-        canvas.create_rectangle(0,0,app.width,app.height, fill="pink")
+        canvas.create_rectangle(0, 0, app.width, app.height, fill="pink")
         drawTextBox(app, canvas)
         drawNoose(app, canvas)
         drawBlanks(app, canvas)
         guesses(app, canvas)
         drawUsage(app, canvas)
         if app.win and app.hangmanCounter <= 10:
-            canvas.create_text(app.width//2, app.height//2, text="You Win!")
+            canvas.create_text(app.width // 2, app.height // 2, text="You Win!")
         if app.lose and app.hangmanCounter <= 10:
-            canvas.create_text(app.width//2, app.height//2, text=f"You Lost! The word was {app.word}")
+            canvas.create_text(app.width // 2, app.height // 2, text=f"You Lost! The word was {app.word}")
         if app.bodyParts == 1:
             drawHead(app, canvas)
         elif app.bodyParts == 2:
@@ -671,7 +752,8 @@ def redrawAll(app, canvas):
             drawRightArm(app, canvas)
             drawLeftLeft(app, canvas)
             drawRightLeg(app, canvas)
-            
+
+
 ##############################################
 # Run App
 ##############################################
