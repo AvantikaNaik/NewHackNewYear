@@ -671,6 +671,7 @@ def redrawAll(app, canvas):
             drawRightArm(app, canvas)
             drawLeftLeft(app, canvas)
             drawRightLeg(app, canvas)
+            
 ##############################################
 # Run App
 ##############################################
