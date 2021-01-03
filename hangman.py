@@ -1,10 +1,12 @@
 from cmu_112_graphics import *
+from random_words import RandomWords
+rw = RandomWords()
 
 def appStarted(app):
-    app.word = ""
+    app.word = rw.random_word()
+    print(app.word)
     app.guessedLetters = set()
     app.currentList = []
-    getWord(app)
     generateLists(app)
     app.textbox = "..."
     app.journalEntry = False
@@ -19,15 +21,6 @@ def generateLists(app):
     app.wordList = list(app.word)
     for i in range(len(app.word)):
         app.currentList.append("_")
-
-def getWord(app):
-    inputWord = input("Player 1 give me a word:").lower()
-
-    while not inputWord.isalpha():
-        print("Please enter a valid word")
-        inputWord = input("Player 1 give me a word:").lower()
-    
-    app.word = inputWord
 
 def timerFired(app):
     if app.wordList == app.currentList:
@@ -93,7 +86,7 @@ def drawNoose(app, canvas):
 
 def drawBlanks(app, canvas):
     numBlanks = len(app.word)
-    lenBlanks = (7 * app.width//10) // numBlanks - app.width//10
+    lenBlanks = (7 * app.width//10) // numBlanks - 20
     canvas.create_text(6.5 * app.width//10, 2 * app.width//10, text=app.currentList, font = f"Arial {lenBlanks}")
 
 def guesses(app, canvas):

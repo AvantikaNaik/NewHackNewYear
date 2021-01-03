@@ -351,8 +351,20 @@ def drawGames(app, canvas):
     canvas.create_rectangle(app.width//2 + xMargin, app.height//2 + yMargin, app.width-xMargin, app.height - yMargin, fill="white")
     drawHangman(app, canvas, xMargin, yMargin, app.width//2-xMargin, app.height//2 - yMargin)
     drawWar(app, canvas, xMargin, app.height//2 + yMargin, app.width//2-xMargin, app.height - yMargin)
-    drawSkribble(app, canvas, app.width//2 + xMargin, yMargin, app.width-xMargin, app.height//2 - yMargin)
+    drawPong(app, canvas, app.width//2 + xMargin, yMargin, app.width-xMargin, app.height//2 - yMargin)
     drawSnakeArt(app, canvas, app.width//2 + xMargin, app.height//2 + yMargin, app.width-xMargin, app.height - yMargin)
+
+def drawPong(app, canvas, x1, y1, x2, y2):
+    gridWidth = x2 - x1
+    gridHeight = y2 - y1
+    midX = (x2 + x1)//2
+    midY = (y2 + y1)//2
+
+    canvas.create_rectangle(x1 + gridWidth//10, y1 + gridHeight//10, x1 + 2*gridWidth//10, y1 + 6 * gridHeight//10, fill="black")
+    canvas.create_rectangle(x2 - 2 * gridWidth//10, y2 - 6 * gridHeight//10, x2 - gridWidth//10, y2 - gridHeight//10, fill="black")
+    canvas.create_oval(midX - gridWidth//20, midY - gridWidth//20, midX + gridWidth//20, midY + gridWidth//20, fill="black")
+    canvas.create_text(midX, y2 - gridHeight//16, text="Pong")
+
 
 def drawHangman(app, canvas, x1, y1, x2, y2):
     gridWidth = x2 - x1
