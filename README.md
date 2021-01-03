@@ -1,5 +1,7 @@
-# NewHackNewYear
-MLH New Hack New Year Hackathon Repo
+# NewHackNewYear Hackathon
+This is a hackathon project made for the MLH New Year New Hack Hackathon (Jan 1 - 3, 2021). Our project is called the HackerGames.
+
+---
 
 Hi and welcome to the HackerGames 
 
