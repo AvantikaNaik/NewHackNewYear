@@ -35,7 +35,7 @@ if game == "War":
         print("\n\n\n")
     print("Here are the winners: ")
     for player in game.winners():
-        print(player.name + " with " + str(len(player.pile)) + " cards in their pile.")
+        print(player.name + " with " + str(len(player.pile)) + " cards in their pile. \n"+player.name + ", you get a COOKIE!")
 
 
 
