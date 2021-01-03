@@ -516,15 +516,12 @@ def mousePressed(app, event):
             app.agarioMode = True
             print("agario")
     if app.showSnakeModeOptions:
-        if 0 < event.x < app.width // 2:
+        if 0 < event.x < app.width:
             initSnakeAndWormAndFood(app)
             app.waitingForFirstKeyPress = True
             app.showSnakeModeOptions = False
             app.gameOverCounter = 0
             app.aiSnakeMode = True
-        else:
-            app.multiplayerSnakeMode = True
-            app.showSnakeModeOptions = False
     if app.hangmanMode:
         if app.width // 4 < event.x < 3 * app.width // 4 and 3 * app.height // 4 < event.y < 15 * app.height // 16:
             app.journalEntry = True
@@ -891,6 +888,10 @@ def drawPressAnyKey(app, canvas):
                        text='Press any key to start!',
                        font='Arial 18 bold')
 
+def dragario(app, canvas):
+    if not app.gameMenuAnimation:
+        canvas.create_text(app.width//2, app.height/2, text="Click here for * a single use surprise!!!", fill="pale violet red")
+
 def redrawAll(app, canvas):
     canvas.create_rectangle(0, 0, app.width, app.height, fill="pink")
     if app.titleScreenShowing:
@@ -900,6 +901,7 @@ def redrawAll(app, canvas):
         drawGameMenuAnimation(app, canvas)
     if app.gamesShowing:
         drawGames(app, canvas)
+        dragario(app, canvas)
     if app.warMode:
         canvas.create_rectangle(0, 0, app.width, app.height, fill="pink")
         canvas.create_text(app.width // 2, app.height // 4, text="War is a 2-4 player game!", font="Corbel 30 bold")
@@ -927,13 +929,9 @@ def redrawAll(app, canvas):
             drawWorm(app, canvas)
             drawGameOver(app, canvas)
     if app.showSnakeModeOptions and not app.gameOver:
-        canvas.create_rectangle(0, 0, app.width // 2, app.height, fill="pink")
-        canvas.create_text(app.width / 4, app.height // 2,
-                           text='AI Snake!',
-                           font='Corbel 26 bold')
-        canvas.create_rectangle(app.width // 2, 0, app.width, app.height, fill="light green")
-        canvas.create_text(3 * app.width // 4, app.height // 2,
-                           text='Multiplayer Snake!',
+        canvas.create_rectangle(0, 0, app.width, app.height, fill="pink")
+        canvas.create_text(app.width //2, app.height // 2,
+                           text='AI Snake! Click to advance to the next page',
                            font='Corbel 26 bold')
     if app.hangmanMode:
         canvas.create_rectangle(0, 0, app.width, app.height, fill="pink")
