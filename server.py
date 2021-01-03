@@ -10,6 +10,8 @@ import _pickle as pickle
 import time
 import random
 import math
+from cmu_112_graphics import *
+import pygame
 
 # setup sockets
 S = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -20,12 +22,17 @@ PORT = 5555
 
 BALL_RADIUS = 5
 START_RADIUS = 7
+#mass = player['score']
+#radius = state_radius + player['score'], so each mass adds 1 to the radius
 
 ROUND_TIME = 60 * 5
 
-MASS_LOSS_TIME = 7
+MASS_LOSS_TIME = 7 
+app.rows = 10
+app.cols = 10
 
-W, H = 1600, 830
+W = app.rows
+H = app.cols
 
 HOST_NAME = socket.gethostname()
 SERVER_IP = socket.gethostbyname(HOST_NAME)
@@ -44,7 +51,7 @@ print(f"[SERVER] Server Started with local ip {SERVER_IP}")
 
 # dynamic variables
 players = {}
-balls = []
+food = []
 connections = 0
 _id = 0
 colors = [(255,0,0), (255, 128, 0), (255,255,0), (128,255,0),(0,255,0),(0,255,128),(0,255,255),(0, 128, 255), (0,0,255), (0,0,255), (128,0,255),(255,0,255), (255,0,128),(128,128,128), (0,0,0)]
@@ -56,25 +63,25 @@ nxt = 1
 
 # FUNCTIONS
 
-def release_mass(players):
-	"""
-	releases the mass of players
+# def release_mass(players): #no need???????????????
+# 	"""
+# 	releases the mass of players
 
-	:param players: dict
-	:return: None
-	"""
-	for player in players:
-		p = players[player]
-		if p["score"] > 8:
-			p["score"] = math.floor(p["score"]*0.95)
+# 	:param players: dict
+# 	:return: None
+# 	"""
+# 	for player in players:
+# 		p = players[player]
+# 		# if p["score"] > 5:
+# 		# 	p["score"] = math.floor(p["score"]*0.95)
 
 
-def check_collision(players, balls):
+def check_collision(players, food):
 	"""
-	checks if any of the player have collided with any of the balls
+	checks if any of the player have collided with any of the food
 
 	:param players: a dictonary of players
-	:param balls: a list of balls
+	:param food: a list of food
 	:return: None
 	"""
 	to_delete = []
@@ -82,14 +89,16 @@ def check_collision(players, balls):
 		p = players[player]
 		x = p["x"]
 		y = p["y"]
-		for ball in balls:
-			bx = ball[0]
-			by = ball[1]
 
-			dis = math.sqrt((x - bx)**2 + (y-by)**2)
-			if dis <= START_RADIUS + p["score"]:
-				p["score"] = p["score"] + 0.5
-				balls.remove(ball)
+
+		# for one_food in food:
+		# 	bx = one_food[0]
+		# 	by = one_food[1]
+
+		# 	dis = math.sqrt((x - bx)**2 + (y-by)**2)
+		# 	if dis <= START_RADIUS + p["score"]:
+		# 		p["score"] = p["score"] + 0.5
+		# 		food.remove(one_food)
 
 
 def player_collision(players):
@@ -116,28 +125,33 @@ def player_collision(players):
 				print(f"[GAME] " + players[player2]["name"] + " ATE " + players[player1]["name"])
 
 
-def create_balls(balls, n):
+def create_food(food, n):
 	"""
-	creates orbs/balls on the screen
+	creates orbs/food on the screen
 
-	:param balls: a list to add balls/orbs to
-	:param n: the amount of balls to make
+	:param food: a list to add food/orbs to
+	:param n: the amount of food to make
 	:return: None
 	"""
-	for i in range(n):
-		while True:
-			stop = True
-			x = random.randrange(0,W)
-			y = random.randrange(0,H)
-			for player in players:
-				p = players[player]
-				dis = math.sqrt((x - p["x"])**2 + (y-p["y"])**2)
-				if dis <= START_RADIUS + p["score"]:
-					stop = False
-			if stop:
-				break
-
-		balls.append((x,y, random.choice(colors)))
+	#for i in range(n):
+		# while True:
+		# 	stop = True
+		# 	x = random.randrange(0,W)
+		# 	y = random.randrange(0,H)
+		# 	for player in players:
+		# 		p = players[player]
+		# 		dis = math.sqrt((x - p["x"])**2 + (y-p["y"])**2)
+		# 		if dis <= START_RADIUS + p["score"]:
+		# 			stop = False
+		# 	if stop:
+		# 		break
+    while True:
+        row = random.randint(0, app.rows-1)
+        col = random.randint(0, app.cols-1)
+        if (row,col) not in app.snake:
+            app.foodPosition = (row, col)
+            return 
+		food.append((row,col, random.choice(colors)))
 
 
 def get_start_location(players):
@@ -150,12 +164,20 @@ def get_start_location(players):
 	"""
 	while True:
 		stop = True
+        row = random.randint(0, app.rows-1)
+        col = random.randint(0, app.cols-1)
+        for player in players:
+            p = players[player]
+            if (row,col) not in app.snake:
+                return (row, col)
+
 		x = random.randrange(0,W)
 		y = random.randrange(0,H)
 		for player in players:
 			p = players[player]
 			dis = math.sqrt((x - p["x"])**2 + (y-p["y"])**2)
 			if dis <= START_RADIUS + p["score"]:
+                app.foodPosition = (row, col)
 				stop = False
 				break
 		if stop:
@@ -171,7 +193,7 @@ def threaded_client(conn, _id):
 	:param _id: int
 	:return: None
 	"""
-	global connections, players, balls, game_time, nxt, start
+	global connections, players, food, game_time, nxt, start
 
 	current_id = _id
 
@@ -229,24 +251,24 @@ def threaded_client(conn, _id):
 
 				# only check for collison if the game has started
 				if start:
-					check_collision(players, balls)
+					check_collision(players, food)
 					player_collision(players)
 
-				# if the amount of balls is less than 150 create more
-				if len(balls) < 150:
-					create_balls(balls, random.randrange(100,150))
-					print("[GAME] Generating more orbs")
+				# if the amount of food is not 1, create more
+				if len(food) != 1:
+					create_food(food, 1)
+					print("[GAME] Generating one piece of food")
 
-				send_data = pickle.dumps((balls,players, game_time))
+				send_data = pickle.dumps((food,players, game_time))
 
 			elif data.split(" ")[0] == "id":
 				send_data = str.encode(str(current_id))  # if user requests id then send it
 
 			elif data.split(" ")[0] == "jump":
-				send_data = pickle.dumps((balls,players, game_time))
+				send_data = pickle.dumps((food,players, game_time))
 			else:
 				# any other command just send back list of players
-				send_data = pickle.dumps((balls,players, game_time))
+				send_data = pickle.dumps((food,players, game_time))
 
 			# send data back to clients
 			conn.send(send_data)
@@ -267,8 +289,8 @@ def threaded_client(conn, _id):
 
 # MAINLOOP
 
-# setup level with balls
-create_balls(balls, random.randrange(200,250))
+# setup level with food!!!!!!!!!!!!!!!!!!
+#create_food(food, random.randrange(200,250))
 
 print("[GAME] Setting up level")
 print("[SERVER] Waiting for connections")

@@ -415,7 +415,6 @@ def timerFired(app):
         if app.wordList == app.currentList:
             app.win = True
         if app.bodyParts == 6:
-            print("entered")
             app.lose = True
         if app.currentList == app.wordList:
             app.win == True
